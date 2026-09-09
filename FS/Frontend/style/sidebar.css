@@ -1,0 +1,1077 @@
+/* =========================================================
+   CERMINSaku - SIDEBAR
+   Sidebar.css
+   ========================================================= */
+
+/* =========================================================
+   ROOT / GLOBAL
+   ========================================================= */
+
+:root {
+  --sidebar-width: 270px;
+  --sidebar-collapsed-width: 82px;
+
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e8eaf0;
+
+  --sidebar-text: #4b5563;
+  --sidebar-text-muted: #9ca3af;
+
+  --sidebar-hover: #f4f7f5;
+  --sidebar-active: #e9f7ef;
+  --sidebar-active-text: #15803d;
+
+  --sidebar-primary: #16a34a;
+  --sidebar-primary-dark: #15803d;
+
+  --sidebar-card: #f8faf9;
+
+  --sidebar-shadow:
+    4px 0 24px rgba(15, 23, 42, 0.06);
+
+  --sidebar-transition: 0.25s ease;
+}
+
+
+/* =========================================================
+   SIDEBAR CONTAINER
+   ========================================================= */
+
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: var(--sidebar-width);
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+
+  box-shadow: var(--sidebar-shadow);
+
+  z-index: 9999;
+
+  overflow: hidden;
+
+  transition:
+    width var(--sidebar-transition),
+    background-color var(--sidebar-transition),
+    border-color var(--sidebar-transition);
+}
+
+
+/* =========================================================
+   COLLAPSED
+   ========================================================= */
+
+.sidebar-container.is-collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* main content */
+.viewport-content-wrapper {
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--sidebar-transition);
+  min-height: 100vh;
+}
+
+.sidebar-container.is-collapsed ~ .viewport-content-wrapper {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+@media (max-width: 640px) {
+  .viewport-content-wrapper {
+    margin-left: var(--sidebar-collapsed-width);
+  }
+}
+
+/* =========================================================
+   BRAND HEADER
+   ========================================================= */
+
+.brand-header {
+  height: 76px;
+  min-height: 76px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 16px;
+
+  border-bottom: 1px solid var(--sidebar-border);
+
+  transition: border-color var(--sidebar-transition);
+}
+
+
+.brand-wrapper {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.brand-logo {
+  width: 42px;
+  height: 42px;
+
+  min-width: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #f0fdf4;
+
+  overflow: hidden;
+}
+
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+
+/* =========================================================
+   BRAND TITLE
+   ========================================================= */
+
+.brand-title {
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #111827;
+
+  white-space: nowrap;
+
+  letter-spacing: -0.3px;
+
+  transition:
+    opacity var(--sidebar-transition),
+    color var(--sidebar-transition);
+}
+
+
+/* =========================================================
+   COLLAPSE BUTTON
+   ========================================================= */
+
+.collapse-trigger {
+  width: 28px;
+  height: 28px;
+
+  min-width: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #6b7280;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.collapse-trigger:hover {
+  background: #f0fdf4;
+  color: var(--sidebar-primary);
+  border-color: #bbf7d0;
+
+  transform: scale(1.04);
+}
+
+
+.sidebar-container.is-collapsed .brand-header {
+  padding: 0 17px;
+}
+
+
+.sidebar-container.is-collapsed .brand-wrapper {
+  margin: 0 auto;
+}
+
+
+.sidebar-container.is-collapsed .collapse-trigger {
+  position: absolute;
+  right: 8px;
+  top: 10px;
+}
+
+
+/* =========================================================
+   NAVIGATION WORKSPACE
+   ========================================================= */
+
+.nav-workspace {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  padding: 20px 12px 12px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+
+/* Scrollbar */
+
+.nav-workspace::-webkit-scrollbar {
+  width: 4px;
+}
+
+.nav-workspace::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nav-workspace::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.nav-workspace::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+
+/* =========================================================
+   NAV GROUP
+   ========================================================= */
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  margin-bottom: 14px;
+}
+
+
+.nav-group:last-child {
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
+   GROUP LABEL
+   ========================================================= */
+
+.group-label {
+  padding: 0 13px;
+  margin-bottom: 6px;
+
+  color: var(--sidebar-text-muted);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   NAV LINK
+   ========================================================= */
+
+.nav-link {
+  width: 100%;
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 12px;
+
+  border: none;
+  border-radius: 11px;
+
+  background: transparent;
+
+  color: var(--sidebar-text);
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  position: relative;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.nav-link:hover {
+  background: var(--sidebar-hover);
+  color: #1f2937;
+}
+
+
+.nav-link:active {
+  transform: scale(0.98);
+}
+
+
+/* =========================================================
+   ACTIVE NAV LINK
+   ========================================================= */
+
+.nav-link.is-active {
+  background: var(--sidebar-active);
+
+  color: var(--sidebar-active-text);
+
+  font-weight: 600;
+}
+
+
+.nav-link.is-active::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 50%;
+
+  width: 3px;
+  height: 24px;
+
+  transform: translateY(-50%);
+
+  background: var(--sidebar-primary);
+
+  border-radius: 0 5px 5px 0;
+}
+
+
+/* =========================================================
+   ICON HOLDER
+   ========================================================= */
+
+.icon-holder {
+  width: 22px;
+  height: 22px;
+
+  min-width: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: currentColor;
+}
+
+
+.icon-holder svg {
+  display: block;
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.nav-link:hover .icon-holder svg {
+  transform: scale(1.05);
+}
+
+
+.nav-link.is-active .icon-holder svg {
+  color: var(--sidebar-primary);
+}
+
+
+/* =========================================================
+   LINK TEXT
+   ========================================================= */
+
+.link-text {
+  flex: 1;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  line-height: 1;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+/* =========================================================
+   COLLAPSED NAV
+   ========================================================= */
+
+.sidebar-container.is-collapsed .nav-workspace {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+
+.sidebar-container.is-collapsed .nav-link {
+  justify-content: center;
+
+  padding: 0;
+
+  gap: 0;
+}
+
+
+.sidebar-container.is-collapsed .nav-link.is-active::before {
+  left: 0;
+}
+
+
+.sidebar-container.is-collapsed .nav-group {
+  align-items: center;
+}
+
+
+.sidebar-container.is-collapsed .group-label {
+  display: none;
+}
+
+
+/* =========================================================
+   ACCOUNT FOOTER
+   ========================================================= */
+
+.account-footer {
+  padding: 12px;
+
+  border-top: 1px solid var(--sidebar-border);
+
+  background: var(--sidebar-bg);
+
+  transition:
+    background-color var(--sidebar-transition),
+    border-color var(--sidebar-transition);
+}
+
+
+/* =========================================================
+   ACCOUNT CARD
+   ========================================================= */
+
+.account-card {
+  width: 100%;
+  min-height: 60px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 8px 9px;
+
+  background: var(--sidebar-card);
+
+  border: 1px solid #edf0f2;
+  border-radius: 12px;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.account-card:hover {
+  border-color: #d9e7de;
+  background: #f4faf6;
+}
+
+
+/* =========================================================
+   USER AVATAR
+   ========================================================= */
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+
+  min-width: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #dcfce7;
+
+  color: #15803d;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  overflow: hidden;
+}
+
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}
+
+
+/* =========================================================
+   ACCOUNT META
+   ========================================================= */
+
+.account-meta {
+  min-width: 0;
+
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.account-name {
+  display: block;
+
+  color: #111827;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.account-role {
+  display: block;
+
+  color: #9ca3af;
+
+  font-size: 10px;
+  font-weight: 400;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   LOGOUT BUTTON
+   ========================================================= */
+
+.action-logout {
+  width: 30px;
+  height: 30px;
+
+  min-width: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #9ca3af;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.action-logout:hover {
+  background: #fee2e2;
+
+  color: #dc2626;
+}
+
+
+.action-logout svg {
+  display: block;
+}
+
+
+/* =========================================================
+   COLLAPSED ACCOUNT
+   ========================================================= */
+
+.sidebar-container.is-collapsed .account-footer {
+  padding: 10px;
+}
+
+
+.sidebar-container.is-collapsed .account-card {
+  justify-content: center;
+
+  padding: 8px 4px;
+
+  gap: 0;
+
+  border: none;
+
+  background: transparent;
+}
+
+
+.sidebar-container.is-collapsed .action-logout {
+  position: absolute;
+
+  left: 52px;
+}
+
+
+/* =========================================================
+   LOGOUT MODAL BACKDROP
+   ========================================================= */
+
+.sidebar-popup-backdrop-blur {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 10000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.42);
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  animation: sidebarModalFadeIn 0.2s ease;
+}
+
+
+/* =========================================================
+   LOGOUT MODAL
+   ========================================================= */
+
+.sidebar-popup-modal-body {
+  width: min(420px, 100%);
+
+  padding: 28px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 25px 60px rgba(15, 23, 42, 0.18);
+
+  animation: sidebarModalScaleIn 0.2s ease;
+}
+
+
+/* =========================================================
+   POPUP ICON
+   ========================================================= */
+
+.popup-icon-warning-wrapper {
+  width: 52px;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 18px;
+
+  border-radius: 14px;
+
+  background: #fff7ed;
+
+  color: #ea580c;
+}
+
+
+.popup-icon-warning-wrapper svg {
+  stroke-width: 2;
+}
+
+
+/* =========================================================
+   POPUP TEXT
+   ========================================================= */
+
+.popup-text-content h3 {
+  margin: 0 0 8px;
+
+  color: #111827;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+
+.popup-text-content p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   POPUP ACTIONS
+   ========================================================= */
+
+.popup-action-btn-row {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 24px;
+}
+
+
+.popup-action-btn-row button {
+  min-height: 40px;
+
+  padding: 0 16px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.popup-action-btn-row button:active {
+  transform: scale(0.97);
+}
+
+
+/* =========================================================
+   CANCEL
+   ========================================================= */
+
+.popup-btn-dismiss {
+  border: 1px solid #e5e7eb;
+
+  background: #ffffff;
+
+  color: #4b5563;
+}
+
+
+.popup-btn-dismiss:hover {
+  background: #f9fafb;
+
+  border-color: #d1d5db;
+}
+
+
+/* =========================================================
+   EXECUTE LOGOUT
+   ========================================================= */
+
+.popup-btn-execute {
+  border: 1px solid #dc2626;
+
+  background: #dc2626;
+
+  color: #ffffff;
+}
+
+
+.popup-btn-execute:hover {
+  background: #b91c1c;
+
+  border-color: #b91c1c;
+}
+
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+
+@keyframes sidebarModalFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+
+@keyframes sidebarModalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+
+/* =========================================================
+   DARK MODE
+   Dipicu oleh:
+   <html data-theme="dark">
+   ========================================================= */
+
+html[data-theme="dark"] {
+  --sidebar-bg: #111827;
+  --sidebar-border: #263244;
+
+  --sidebar-text: #d1d5db;
+  --sidebar-text-muted: #6b7280;
+
+  --sidebar-hover: #1f2937;
+  --sidebar-active: #123524;
+  --sidebar-active-text: #4ade80;
+
+  --sidebar-card: #182231;
+
+  --sidebar-shadow:
+    4px 0 24px rgba(0, 0, 0, 0.25);
+}
+
+
+html[data-theme="dark"] .brand-title {
+  color: #f9fafb;
+}
+
+
+html[data-theme="dark"] .brand-logo {
+  background: #1f2937;
+}
+
+
+html[data-theme="dark"] .collapse-trigger {
+  background: #1f2937;
+
+  border-color: #374151;
+
+  color: #9ca3af;
+}
+
+
+html[data-theme="dark"] .collapse-trigger:hover {
+  background: #123524;
+
+  border-color: #166534;
+
+  color: #4ade80;
+}
+
+
+html[data-theme="dark"] .nav-link:hover {
+  color: #f3f4f6;
+}
+
+
+html[data-theme="dark"] .account-card {
+  border-color: #293548;
+}
+
+
+html[data-theme="dark"] .account-card:hover {
+  background: #1d2a3b;
+
+  border-color: #374151;
+}
+
+
+html[data-theme="dark"] .account-name {
+  color: #f3f4f6;
+}
+
+
+html[data-theme="dark"] .account-role {
+  color: #9ca3af;
+}
+
+
+html[data-theme="dark"] .action-logout:hover {
+  background: #3f1d1d;
+
+  color: #f87171;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  :root {
+    --sidebar-width: 240px;
+  }
+}
+
+
+@media (max-width: 640px) {
+  :root {
+    --sidebar-width: 82px;
+  }
+
+  .sidebar-container {
+    width: var(--sidebar-collapsed-width);
+  }
+
+  .brand-header {
+    padding: 0 17px;
+  }
+
+  .brand-wrapper {
+    margin: 0 auto;
+  }
+
+  .brand-title,
+  .group-label,
+  .link-text,
+  .account-meta {
+    display: none;
+  }
+
+  .nav-workspace {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .nav-link {
+    justify-content: center;
+
+    padding: 0;
+
+    gap: 0;
+  }
+
+  .nav-link.is-active::before {
+    left: 0;
+  }
+
+  .account-footer {
+    padding: 10px;
+  }
+
+  .account-card {
+    justify-content: center;
+
+    padding: 8px 4px;
+
+    border: none;
+
+    background: transparent;
+  }
+
+  .action-logout {
+    display: none;
+  }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+.nav-link:focus-visible,
+.collapse-trigger:focus-visible,
+.action-logout:focus-visible,
+.popup-action-btn-row button:focus-visible {
+  outline: 2px solid var(--sidebar-primary);
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   PREVENT IMAGE / BUTTON WEIRDNESS
+   ========================================================= */
+
+.sidebar-container button {
+  font-family: inherit;
+}
+
+
+.sidebar-container img {
+  max-width: 100%;
+}
+
+
+.sidebar-container *,
+.sidebar-container *::before,
+.sidebar-container *::after {
+  box-sizing: border-box;
+}

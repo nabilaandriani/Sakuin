@@ -1,0 +1,28 @@
+{
+  "feature_columns": [
+    "amount_log",
+    "type_encoded",
+    "day_of_week",
+    "day_of_month",
+    "month",
+    "quarter",
+    "year",
+    "is_weekend",
+    "is_month_end"
+  ],
+  "class_names": [
+    "Entertainment",
+    "Food & Drink",
+    "Health & Fitness",
+    "Investment",
+    "Other",
+    "Rent",
+    "Salary",
+    "Shopping",
+    "Travel",
+    "Utilities"
+  ],
+  "num_classes": 10,
+  "input_dim": 9,
+  "test_accuracy": 0.2742029130458832
+}
