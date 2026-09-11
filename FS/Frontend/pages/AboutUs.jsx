@@ -18,13 +18,13 @@ export default function AboutUs() {
       <section className="about-hero-core">
         <div className="about-inner-shell">
           <div className="about-brand-badge">
-            <img src={logo} alt="CerminSaku" />
+            <img src={logo} alt="Sakuin" />
 
           </div>
           
           <h1>Transparansi Finansial <br /><span className="accent-gradient-text">Dalam Genggaman.</span></h1>
           <p className="about-brief-desc">
-            CerminSaku lahir sebagai solusi pembukuan modern yang berfokus pada kemudahan, kejelasan data, and kenyamanan visual untuk mengontrol kas harian Anda tanpa fungsi yang rumit.
+            Sakuin lahir sebagai solusi pembukuan modern yang berfokus pada kemudahan, kejelasan data, and kenyamanan visual untuk mengontrol kas harian Anda tanpa fungsi yang rumit.
           </p>
 
           <div className="about-bento-vision">

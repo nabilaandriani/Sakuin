@@ -100,7 +100,7 @@ const register = async (req, res) => {
         `"CerminSaku" <${process.env.MAIL_USER}>`,
       to: email,
       subject:
-        'Verifikasi OTP CerminSaku',
+        'Verifikasi OTP Sakuin',
       html: `
       <div style="
         font-family: Arial;
@@ -111,7 +111,7 @@ const register = async (req, res) => {
           color:#0E4834;
         ">
           Verifikasi Akun
-          CerminSaku
+          Sakuin
         </h2>
 
         <p>
@@ -420,12 +420,12 @@ const sendResetOtp =
       // KIRIM EMAIL
       await transporter.sendMail({
         from:
-          `"CerminSaku" <${process.env.MAIL_USER}>`,
+          `"Sakuin" <${process.env.MAIL_USER}>`,
 
         to: email,
 
         subject:
-          "Reset Password CerminSaku",
+          "Reset Password Sakuin",
 
         html: `
         <div style="

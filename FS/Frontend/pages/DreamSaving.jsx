@@ -170,6 +170,7 @@ export default function DreamSaving() {
         await apiClient.put(`/api/savings/${editId}`, payload);
       } else {
         await apiClient.post("/api/savings", payload);
+        recordTransaction();
       }
 
       setShowModal(false);
@@ -421,7 +422,7 @@ export default function DreamSaving() {
                       }}
                     >
                       <Brain size={16} />
-                      <span>Insight AI CerminSaku</span>
+                      <span>Insight AI Sakuin</span>
                     </div>
                     <button
                       onClick={generateInsight}

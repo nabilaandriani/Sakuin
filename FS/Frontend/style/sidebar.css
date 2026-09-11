@@ -759,7 +759,7 @@
 .popup-text-content h3 {
   margin: 0 0 8px;
 
-  color: #111827;
+  color: black;
 
   font-size: 18px;
   font-weight: 700;
@@ -767,6 +767,24 @@
 
 
 .popup-text-content p {
+  font-size: 13px;
+    color: #64748B;
+    line-height: 1.7;
+    max-width: 400px;
+    margin: 0;
+}
+
+html[data-theme="dark"] .popup-text-content h3 {
+  margin: 0 0 8px;
+
+  color: black !important;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+
+html[data-theme="dark"] .popup-text-content p {
   margin: 0;
 
   color: #6b7280;
@@ -914,7 +932,7 @@ html[data-theme="dark"] .brand-title {
 
 
 html[data-theme="dark"] .brand-logo {
-  background: #1f2937;
+  background: #dcfce7;
 }
 
 

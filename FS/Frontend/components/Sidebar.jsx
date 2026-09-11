@@ -90,7 +90,7 @@ export default function Sidebar({ activePage }) {
         <div className="brand-header">
           <div className="brand-wrapper">
             <div className="brand-logo"><img src={logo} alt="Sakuin" /></div>
-            {!collapsed && <span className="brand-title">Sakuin</span>}
+            {!collapsed && <span className="brand-title"></span>}
           </div>
           <button className="collapse-trigger" onClick={() => setCollapsed(!collapsed)}>
             {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -164,7 +164,7 @@ export default function Sidebar({ activePage }) {
             <div className="popup-icon-warning-wrapper"><AlertTriangle size={24} /></div>
             <div className="popup-text-content">
               <h3>Konfirmasi Keluar Akun</h3>
-              <p>Apakah Anda yakin ingin keluar dari sesi CerminSaku?</p>
+              <p>Apakah Anda yakin ingin keluar dari sesi Sakuin?</p>
             </div>
             <div className="popup-action-btn-row">
               <button className="popup-btn-dismiss" onClick={() => setShowLogoutModal(false)}>Batal</button>

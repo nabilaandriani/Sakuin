@@ -13,10 +13,44 @@
   align-items: center;
   justify-content: center;
   padding: 40px 24px;
-  overflow-y: auto;
   position: relative;
   font-family: 'Plus Jakarta Sans', sans-serif;
   background: #FAFBFD;
+}
+
+.login-back-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  background: #ffffffb3;
+  backdrop-filter: blur(10px);
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.login-back-btn:hover {
+  background: #ffffff;
+  color: #0E4834;
+  transform: translateX(-2px);
+}
+
+[data-theme="dark"] .login-back-btn {
+  background: #ffffff0d;
+  color: #AAB7C7;
+}
+
+[data-theme="dark"] .login-back-btn:hover {
+  background: #ffffff1a;
+  color: #6EE7B7;
 }
 
 .login-central-shell {
@@ -98,6 +132,26 @@
   object-fit: contain;
   filter: drop-shadow(0 8px 20px #0e483414);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .login-logo {
+  background-color: #f0fdf4;
+  border-radius: 16px;
+  width: 200px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  -webkit-border-radius: 16px;
+  -moz-border-radius: 16px;
+  -ms-border-radius: 16px;
+  -o-border-radius: 16px;
+}
+
+[data-theme="dark"] .login-logo img {
+  width: 160px;
+  height: auto;
 }
 
 .login-card {

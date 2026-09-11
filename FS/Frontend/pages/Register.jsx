@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import logo from "../asset/logo.png";
 import "../style/login.css";
+import { GoArrowLeft } from "react-icons/go";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -147,6 +148,13 @@ export default function Register() {
 
   return (
     <div className="login-page">
+      <button
+        className="login-back-btn"
+        onClick={() => navigate("/")}
+        aria-label="Kembali ke landing page"
+      >
+        <GoArrowLeft className="text-2xl" />
+      </button>
 
       {/* TOAST */}
       {toast.show && (

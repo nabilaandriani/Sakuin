@@ -246,7 +246,7 @@ export default function Profile() {
     {
       icon: <LogOut size={20} color="#EF4444" />,
       label: "Keluar",
-      desc: "Akhiri sesi CerminSaku",
+      desc: "Akhiri sesi Sakuin",
       modal: "logout",
       danger: true,
     },
@@ -469,7 +469,7 @@ export default function Profile() {
         <Modal title="Tentang Kami" onClose={closeModal}>
           <div className="about-content">
             <div className="about-logo">💰</div>
-            <h3>CerminSaku</h3>
+            <h3>Sakuin</h3>
             <p className="about-version">Versi 1.0.0</p>
             <p className="about-desc">
               Platform pengelola keuangan pribadi untuk Gen Z dan milenial agar
@@ -478,15 +478,14 @@ export default function Profile() {
             <div className="about-team">
               <p className="about-team-label">Dikembangkan oleh Tim Capstone</p>
               <div className="about-team-names">
-                <span>Andhika</span>
-                <span>Rafi</span>
-                <span>Nadia</span>
+                <span>Zakiyah</span>
+                <span>Nabila</span>
                 <span>Sella</span>
-                <span>Reza</span>
-                <span>Dhika</span>
+                <span>Nadia</span>
+                <span>Farida</span>
               </div>
             </div>
-            <p className="about-copy">2026 CerminSaku. All rights reserved.</p>
+            <p className="about-copy">2026 Sakuin. All rights reserved.</p>
           </div>
         </Modal>
       )}
@@ -498,7 +497,7 @@ export default function Profile() {
               <AlertTriangle size={24} />
             </div>
             <h3>Konfirmasi Keluar</h3>
-            <p>Apakah kamu yakin ingin mengakhiri sesi CerminSaku?</p>
+            <p>Apakah kamu yakin ingin mengakhiri sesi Sakuin?</p>
             <div className="sheet-action-footer">
               <button className="sheet-btn-cancel" onClick={closeModal}>
                 Batal

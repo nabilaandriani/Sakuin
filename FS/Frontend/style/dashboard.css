@@ -718,7 +718,7 @@ body {
 }
 
 .tx-amount.expense {
-  color: #0f172a;
+  color: #ef4444;
 }
 .tx-amount.income {
   color: #10b981;

@@ -1529,7 +1529,7 @@ export default function Transaction() {
 
             <p className="modal-description-text">
               Selamat datang di menu pembukuan kas
-              CerminSaku. Ikuti langkah praktis berikut
+              Sakuin. Ikuti langkah praktis berikut
               untuk memulai pelacakan dana Anda.
             </p>
 

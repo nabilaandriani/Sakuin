@@ -22,12 +22,14 @@ function daysBetween(a, b) {
 }
 
 export function StreakProvider({ children }) {
-  const [streak, setStreak] = useState(DEFAULT_STATE);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) setStreak({ ...DEFAULT_STATE, ...JSON.parse(saved) });
-  }, []);
+  const [streak, setStreak] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? { ...DEFAULT_STATE, ...JSON.parse(saved) } : DEFAULT_STATE;
+    } catch {
+      return DEFAULT_STATE;
+    }
+  });
 
   function recordTransaction() {
     setStreak((prev) => {

@@ -1491,7 +1491,7 @@ export default function Dashboard() {
 
                 <h5>
                   Insight Finansial
-                  CerminSaku
+                  Sakuin
                 </h5>
 
                 <button

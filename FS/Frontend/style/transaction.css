@@ -890,8 +890,8 @@ body {
   font-size: 14px;
   color: #64748B;
   line-height: 1.7;
-  max-width: 300px;
-  margin: 0 auto;
+  max-width: 400px;
+  margin: 0;
 }
 
 .sheet-backdrop-blur {
