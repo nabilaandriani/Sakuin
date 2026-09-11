@@ -159,6 +159,9 @@ body {
   font-weight: 800;
   color: #ffffff;
   letter-spacing: -0.4px;
+  margin: 0;
+  line-height: 1; 
+  white-space: nowrap;
 }
 
 .profile-hero-email {
@@ -599,6 +602,137 @@ body {
   color: #64748b;
   line-height: 1.55;
   max-width: 260px;
+}
+
+.profile-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.profile-badge-chip.unlocked {
+  background: var(--badge-color, #6366F1);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.profile-badge-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2); 
+  cursor: pointer !important;                  
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-badge-chip:hover {
+  transform: translateY(-3px) scale(1.12);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  border-color: #ffffff;
+}
+
+.profile-badge-chip:active {
+  transform: translateY(-1px) scale(0.95);
+}
+
+.profile-badge-chip.locked {
+  background: rgba(148, 163, 184, 0.2);
+  color: #94A3B8;
+}
+
+.profile-badge-chip.locked:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.profile-badge-more-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s ease;
+  margin-left: 4px;
+}
+
+.profile-badge-more-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Modal detail lencana */
+.profile-name-badges {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.profile-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.badge-modal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.badge-modal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+}
+
+.badge-modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(148, 163, 184, 0.15);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.badge-modal-item.locked .badge-modal-icon {
+  color: #94A3B8;
+}
+
+.badge-modal-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.badge-modal-name {
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.badge-modal-desc {
+  font-size: 12px;
+  color: #64748B;
+}
+
+.badge-modal-lock {
+  color: #CBD5E1;
 }
 
 [data-theme="dark"] body, [data-theme="dark"] .dashboard, [data-theme="dark"] .viewport-content-wrapper {

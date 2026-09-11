@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import "../style/profile.css";
+import { useStreakContext } from "../components/StreakContext";
 
 import {
   Camera,
@@ -15,6 +16,11 @@ import {
   Check,
   AlertTriangle,
   ChevronRight,
+  Flame,
+  Medal,
+  Award,
+  Trophy,
+  Crown,
 } from "lucide-react";
 
 const BACKEND_URL = "http://localhost:3000";
@@ -45,7 +51,7 @@ export default function Profile() {
     nama: "Pengguna",
     email: "",
     telepon: "",
-    avatar: "", 
+    avatar: "",
   });
 
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -74,18 +80,28 @@ export default function Profile() {
         const localData = JSON.parse(localStorage.getItem("userData")) || {};
 
         const newUserData = {
-          ...localData, 
-          nama: response.data?.name || localData.nama || localData.name || "Pengguna",
-          name: response.data?.name || localData.name || localData.nama || "Pengguna", // Disimpan ganda untuk keamanan beda penamaan
+          ...localData,
+          nama:
+            response.data?.name ||
+            localData.nama ||
+            localData.name ||
+            "Pengguna",
+          name:
+            response.data?.name ||
+            localData.name ||
+            localData.nama ||
+            "Pengguna", // Disimpan ganda untuk keamanan beda penamaan
           email: response.data?.email || localData.email || "",
-          telepon: response.data?.phone || localData.telepon || localData.phone || "",
-          phone: response.data?.phone || localData.phone || localData.telepon || "",
+          telepon:
+            response.data?.phone || localData.telepon || localData.phone || "",
+          phone:
+            response.data?.phone || localData.phone || localData.telepon || "",
           avatar: localData.avatar || "",
         };
 
         setUser(newUserData);
         setAvatarPreview(newUserData.avatar);
-        
+
         localStorage.setItem("userData", JSON.stringify(newUserData));
       } catch {
         const local = localStorage.getItem("userData");
@@ -127,14 +143,14 @@ export default function Profile() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const base64Image = ev.target.result;
-      setAvatarPreview(base64Image); 
-      
+      setAvatarPreview(base64Image);
+
       const localData = JSON.parse(localStorage.getItem("userData")) || {};
       const updatedUser = { ...localData, ...user, avatar: base64Image };
-      
+
       setUser(updatedUser);
       localStorage.setItem("userData", JSON.stringify(updatedUser));
-      
+
       window.dispatchEvent(new Event("userUpdated"));
     };
     reader.readAsDataURL(file);
@@ -147,43 +163,43 @@ export default function Profile() {
         body: JSON.stringify({
           name: formProfil.nama,
           email: formProfil.email,
-          phone: formProfil.telepon
+          phone: formProfil.telepon,
         }),
       });
-      
+
       const localData = JSON.parse(localStorage.getItem("userData")) || {};
-      const updatedUser = { 
-        ...localData, 
-        ...user, 
+      const updatedUser = {
+        ...localData,
+        ...user,
         nama: formProfil.nama,
         name: formProfil.nama,
         email: formProfil.email,
         telepon: formProfil.telepon,
-        phone: formProfil.telepon
+        phone: formProfil.telepon,
       };
-      
+
       setUser(updatedUser);
       localStorage.setItem("userData", JSON.stringify(updatedUser));
-      
+
       window.dispatchEvent(new Event("userUpdated"));
 
       setSuccessMsg("Profil berhasil diperbarui!");
       setTimeout(closeModal, 1200);
     } catch {
       const localData = JSON.parse(localStorage.getItem("userData")) || {};
-      const updatedUser = { 
-        ...localData, 
-        ...user, 
+      const updatedUser = {
+        ...localData,
+        ...user,
         nama: formProfil.nama,
         name: formProfil.nama,
         email: formProfil.email,
         telepon: formProfil.telepon,
-        phone: formProfil.telepon
+        phone: formProfil.telepon,
       };
 
       setUser(updatedUser);
       localStorage.setItem("userData", JSON.stringify(updatedUser));
-      
+
       window.dispatchEvent(new Event("userUpdated"));
 
       setSuccessMsg("Profil berhasil diperbarui!");
@@ -252,6 +268,47 @@ export default function Profile() {
     },
   ];
 
+  const STREAK_BADGES = [
+    {
+      id: "pemanasan",
+      threshold: 5,
+      label: "Pemanasan",
+      icon: Flame,
+      color: "#F97316",
+    },
+    {
+      id: "konsisten",
+      threshold: 25,
+      label: "Konsisten",
+      icon: Medal,
+      color: "#3B82F6",
+    },
+    {
+      id: "tangguh",
+      threshold: 50,
+      label: "Tangguh",
+      icon: Award,
+      color: "#8B5CF6",
+    },
+    {
+      id: "sultan",
+      threshold: 100,
+      label: "Sultan Konsisten",
+      icon: Trophy,
+      color: "#EAB308",
+    },
+    {
+      id: "legenda",
+      threshold: 200,
+      label: "Legenda Sakuin",
+      icon: Crown,
+      color: "#EC4899",
+    },
+  ];
+
+  const { streak } = useStreakContext();
+  const { longestStreak } = streak;
+
   return (
     <div className="dashboard">
       <Sidebar activePage="profile" />
@@ -288,7 +345,39 @@ export default function Profile() {
                 />
               </div>
               <div className="profile-hero-info">
-                <h2 className="profile-hero-name">{user.nama || user.name}</h2>
+                <div className="profile-name-badges">
+                  <h2 className="profile-hero-name">
+                    {user.nama || user.name}
+                  </h2>{" "}
+                  <div className="profile-badge-row">
+                    {STREAK_BADGES.map((badge) => {
+                      const unlocked = longestStreak >= badge.threshold;
+                      const Icon = badge.icon;
+                      return (
+                        <button
+                          key={badge.id}
+                          className={`profile-badge-chip ${unlocked ? "unlocked" : "locked"}`}
+                          style={
+                            unlocked
+                              ? { "--badge-color": badge.color }
+                              : undefined
+                          }
+                          onClick={() => openModal("lencana")}
+                          title={`${badge.label} · streak ${badge.threshold} hari`}
+                        >
+                          <Icon size={16} />
+                        </button>
+                      );
+                    })}
+                    <button
+                      className="profile-badge-more-btn"
+                      onClick={() => openModal("lencana")}
+                    >
+                      <span>Lihat Detail</span>
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+                </div>
                 <p className="profile-hero-email">{user.email}</p>
                 <span className="profile-hero-badge">Pengguna Aktif</span>
               </div>
@@ -298,7 +387,9 @@ export default function Profile() {
           <div className="profile-info-row">
             <div className="profile-info-card">
               <span className="profile-info-label">Nama Lengkap</span>
-              <span className="profile-info-value">{user.nama || user.name}</span>
+              <span className="profile-info-value">
+                {user.nama || user.name}
+              </span>
             </div>
             <div className="profile-info-card">
               <span className="profile-info-label">Email</span>
@@ -306,7 +397,9 @@ export default function Profile() {
             </div>
             <div className="profile-info-card">
               <span className="profile-info-label">Nomor HP</span>
-              <span className="profile-info-value">{user.telepon || user.phone || "-"}</span>
+              <span className="profile-info-value">
+                {user.telepon || user.phone || "-"}
+              </span>
             </div>
           </div>
 
@@ -486,6 +579,39 @@ export default function Profile() {
               </div>
             </div>
             <p className="about-copy">2026 Sakuin. All rights reserved.</p>
+          </div>
+        </Modal>
+      )}
+
+      {activeModal === "lencana" && (
+        <Modal title="Lencana Streak" onClose={closeModal}>
+          <div className="badge-modal-list">
+            {STREAK_BADGES.map((badge) => {
+              const unlocked = longestStreak >= badge.threshold;
+              const Icon = badge.icon;
+              return (
+                <div
+                  key={badge.id}
+                  className={`badge-modal-item ${unlocked ? "unlocked" : "locked"}`}
+                >
+                  <div
+                    className="badge-modal-icon"
+                    style={unlocked ? { background: badge.color } : undefined}
+                  >
+                    <Icon size={20} />
+                  </div>
+                  <div className="badge-modal-text">
+                    <span className="badge-modal-name">{badge.label}</span>
+                    <span className="badge-modal-desc">
+                      {unlocked
+                        ? `Tercapai di streak ${badge.threshold} hari`
+                        : `Capai streak ${badge.threshold} hari untuk membuka`}
+                    </span>
+                  </div>
+                  {!unlocked && <Lock size={16} className="badge-modal-lock" />}
+                </div>
+              );
+            })}
           </div>
         </Modal>
       )}
