@@ -256,7 +256,7 @@ export default function Profile() {
     {
       icon: <Info size={20} />,
       label: "Tentang Kami",
-      desc: "Versi 1.0.0 · CerminSaku",
+      desc: "Versi 1.0.0 · Sakuin",
       modal: "tentangKami",
     },
     {
