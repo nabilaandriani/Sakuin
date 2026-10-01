@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { ImFire } from "react-icons/im";
-import { IoCheckmarkCircle, IoRepeat, IoChevronUp, IoChevronDown } from "react-icons/io5";
+import {
+  IoCheckmarkCircle,
+  IoRepeat,
+  IoChevronUp,
+  IoChevronDown,
+} from "react-icons/io5";
 import { GoX } from "react-icons/go";
-import { useStreakContext } from "./StreakContext";
+import { useStreakContext, toLocalDateStr } from "./StreakContext";
 import "../style/streak.css";
 
 function getWeekStatus(history) {
   const dayLabels = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
   const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10);
+  const todayStr = toLocalDateStr(today);
   const jsDay = today.getDay();
   const mondayOffset = jsDay === 0 ? -6 : 1 - jsDay;
   const monday = new Date(today);
@@ -17,7 +22,7 @@ function getWeekStatus(history) {
   return dayLabels.map((label, i) => {
     const date = new Date(monday);
     date.setDate(monday.getDate() + i);
-    const dateStr = date.toISOString().slice(0, 10);
+    const dateStr = toLocalDateStr(date);
     return {
       label,
       checked: history.includes(dateStr),
@@ -28,21 +33,22 @@ function getWeekStatus(history) {
 
 export default function Streak() {
   const { streak } = useStreakContext();
-  const { streakCount, longestStreak, totalCount, history, streakBump } = streak;
+  const { streakCount, longestStreak, totalCount, history, streakBump } =
+    streak;
 
   const [isOpen, setIsOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(true);
   const [isBumping, setIsBumping] = useState(false);
-  const isFirstRender = useRef(true);
+  const prevBumpRef = useRef(streakBump);
   const week = getWeekStatus(history);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (streakBump <= prevBumpRef.current) {
+      prevBumpRef.current = streakBump;
       return;
     }
-    if (!streakBump) return;
 
+    prevBumpRef.current = streakBump;
     setIsBumping(true);
     const timer = setTimeout(() => setIsBumping(false), 900);
     return () => clearTimeout(timer);
@@ -51,8 +57,12 @@ export default function Streak() {
   return (
     <>
       <button className="streak-trigger" onClick={() => setIsOpen(true)}>
-        <ImFire className={`streak-trigger-icon ${isBumping ? "streak-fire-bump" : ""}`} />
-        <p className={`streak-trigger-text ${isBumping ? "streak-number-bump" : ""}`}>
+        <ImFire
+          className={`streak-trigger-icon ${isBumping ? "streak-fire-bump" : ""}`}
+        />
+        <p
+          className={`streak-trigger-text ${isBumping ? "streak-number-bump" : ""}`}
+        >
           {streakCount}
         </p>
         {isBumping && <span className="streak-plus-badge">+1</span>}
@@ -66,14 +76,19 @@ export default function Streak() {
                 <ImFire className="streak-popup-title-icon" />
                 <h2>Streak</h2>
               </div>
-              <button className="streak-close-btn" onClick={() => setIsOpen(false)}>
-                <GoX className="text-2xl text-black dark:text-white"/>
+              <button
+                className="streak-close-btn"
+                onClick={() => setIsOpen(false)}
+              >
+                <GoX className="text-2xl text-black dark:text-white" />
               </button>
             </div>
 
             <div className="streak-popup-body">
               <div className="streak-count-row">
-                <span className={`streak-count-number ${isBumping ? "streak-number-bump" : ""}`}>
+                <span
+                  className={`streak-count-number ${isBumping ? "streak-number-bump" : ""}`}
+                >
                   {streakCount}
                 </span>
                 <span className="streak-count-label">Hari</span>
@@ -82,7 +97,9 @@ export default function Streak() {
               <div className="streak-week-grid">
                 {week.map(({ label, checked, isToday }) => (
                   <div key={label} className="streak-day">
-                    <div className={`streak-day-circle ${checked ? "checked" : ""} ${isToday ? "today" : ""}`}>
+                    <div
+                      className={`streak-day-circle ${checked ? "checked" : ""} ${isToday ? "today" : ""}`}
+                    >
                       {checked && <IoCheckmarkCircle />}
                     </div>
                     <span className="streak-day-label">{label}</span>
@@ -96,7 +113,8 @@ export default function Streak() {
                 <div>
                   <p className="streak-stat-label">Streak Terpanjang</p>
                   <p className="streak-stat-value">
-                    {longestStreak} <span className="streak-stat-unit">Hari</span>
+                    {longestStreak}{" "}
+                    <span className="streak-stat-unit">Hari</span>
                   </p>
                 </div>
                 <div className="streak-stat-right">
@@ -108,7 +126,10 @@ export default function Streak() {
               <hr className="streak-divider" />
 
               <div className="streak-faq">
-                <button className="streak-faq-toggle" onClick={() => setFaqOpen((prev) => !prev)}>
+                <button
+                  className="streak-faq-toggle"
+                  onClick={() => setFaqOpen((prev) => !prev)}
+                >
                   Bagaimana cara kerja streak?
                   {faqOpen ? <IoChevronUp /> : <IoChevronDown />}
                 </button>
@@ -117,15 +138,18 @@ export default function Streak() {
                   <ul className="streak-faq-list">
                     <li className="streak-faq-item">
                       <IoCheckmarkCircle className="streak-faq-icon" />
-                      Selesaikan setidaknya satu catatan transaksi atau impian setiap hari untuk membangun rekor beruntun Anda.
+                      Selesaikan setidaknya satu catatan transaksi atau impian
+                      setiap hari untuk membangun rekor beruntun Anda.
                     </li>
                     <li className="streak-faq-item">
                       <ImFire className="streak-faq-icon" />
-                      Setiap kali Anda menambahkan catatan transaksi atau impian, streak Anda akan bertambah.
+                      Setiap kali Anda menambahkan catatan transaksi atau
+                      impian, streak Anda akan bertambah.
                     </li>
                     <li className="streak-faq-item">
                       <IoRepeat className="streak-faq-icon" />
-                      Melewatkan satu hari akan mengatur ulang streak Anda menjadi 0.
+                      Melewatkan satu hari akan mengatur ulang streak Anda
+                      menjadi 0.
                     </li>
                   </ul>
                 )}

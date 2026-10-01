@@ -9,32 +9,71 @@ const DEFAULT_STATE = {
   totalCount: 0,
   lastActiveDate: null,
   history: [],
-  maxStreak: 500,
+  maxStreak: 200,
   streakBump: 0,
 };
 
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
+export function toLocalDateStr(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 function daysBetween(a, b) {
-  return Math.floor((new Date(b) - new Date(a)) / (1000 * 60 * 60 * 24));
+  return Math.round((new Date(b) - new Date(a)) / (1000 * 60 * 60 * 24));
+}
+
+function expireIfMissed(state) {
+  if (!state.lastActiveDate || state.streakCount === 0) return state;
+  const diff = daysBetween(state.lastActiveDate, toLocalDateStr());
+  if (diff > 1) {
+    return { ...state, streakCount: 0 };
+  }
+  return state;
 }
 
 export function StreakProvider({ children }) {
   const [streak, setStreak] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? { ...DEFAULT_STATE, ...JSON.parse(saved) } : DEFAULT_STATE;
+      const initial = saved
+        ? { ...DEFAULT_STATE, ...JSON.parse(saved), streakBump: 0 }
+        : DEFAULT_STATE;
+      return expireIfMissed(initial);
     } catch {
       return DEFAULT_STATE;
     }
   });
 
+  useEffect(() => {
+    const check = () => {
+      setStreak((prev) => {
+        const next = expireIfMissed(prev);
+        if (next !== prev) {
+          const { streakBump, ...toSave } = next;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+        }
+        return next;
+      });
+    };
+
+    check();
+    const interval = setInterval(check, 60 * 1000);
+    window.addEventListener("focus", check);
+    document.addEventListener("visibilitychange", check);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", check);
+      document.removeEventListener("visibilitychange", check);
+    };
+  }, []);
+
   function recordTransaction() {
     setStreak((prev) => {
       const next = { ...prev };
-      const today = todayStr();
+      const today = toLocalDateStr();
       const isNewDay = next.lastActiveDate !== today;
       let streakIncreased = false;
 
