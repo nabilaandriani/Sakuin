@@ -75,7 +75,7 @@ const createDreamGoal = async (req, res) => {
   }
 };
 
-// UPDATE 
+// UPDATE
 const updateDreamGoal = async (req, res) => {
   try {
     const { id } = req.params;
@@ -96,6 +96,7 @@ const updateDreamGoal = async (req, res) => {
       WHERE
         id = $8
         AND user_id = $9
+        AND COALESCE(tercapai, false) = false
       RETURNING *
       `,
       [
@@ -110,6 +111,14 @@ const updateDreamGoal = async (req, res) => {
         userId
       ]
     );
+
+    if (result.rows.length === 0) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "Impian tidak ditemukan atau sudah tercapai, sehingga tidak bisa diedit",
+      });
+    }
 
     res.json({
       success: true,
@@ -154,6 +163,7 @@ const deleteDreamGoal = async (req, res) => {
   }
 };
 
+// MARK ACHIEVED
 const markAchieved = async (req, res) => {
   try {
     const { id } = req.params;
@@ -161,12 +171,12 @@ const markAchieved = async (req, res) => {
 
     const result = await pool.query(
       `
-      UPDATE dream_goals 
-      SET 
-        tercapai = true, 
-        tanggal_tercapai = CURRENT_TIMESTAMP
-      WHERE 
-        id = $1 AND user_id = $2 
+      UPDATE dream_goals
+      SET
+        tercapai = true,
+        tanggal_tercapai = COALESCE(tanggal_tercapai, CURRENT_TIMESTAMP)
+      WHERE
+        id = $1 AND user_id = $2
       RETURNING *
       `,
       [id, userId]
@@ -190,10 +200,58 @@ const markAchieved = async (req, res) => {
   }
 };
 
+const togglePause = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const { dijeda } = req.body;
+
+    if (typeof dijeda !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "Nilai dijeda harus true atau false",
+      });
+    }
+
+    const result = await pool.query(
+      `
+      UPDATE dream_goals
+      SET dijeda = $1
+      WHERE
+        id = $2
+        AND user_id = $3
+        AND COALESCE(tercapai, false) = false
+      RETURNING *
+      `,
+      [dijeda, id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Goal tidak ditemukan atau sudah tercapai",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: dijeda ? "Goal dijeda" : "Goal dilanjutkan",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Gagal mengubah status goal",
+    });
+  }
+};
+
 module.exports = {
   getDreamGoals,
   createDreamGoal,
   updateDreamGoal,
   deleteDreamGoal,
   markAchieved,
+  togglePause,
 };

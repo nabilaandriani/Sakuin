@@ -7,37 +7,22 @@ const {
   createDreamGoal,
   updateDreamGoal,
   deleteDreamGoal,
-  markAchieved 
+  markAchieved,
+  togglePause,
 } = require("../controller/savingController");
 
-router.get(
-  "/",
-  auth,
-  getDreamGoals
-);
+console.log("savingRoutes dimuat, togglePause:", typeof togglePause);  
 
-router.post(
-  "/",
-  auth,
-  createDreamGoal
-);
+router.get("/", auth, getDreamGoals);
 
-router.put(
-  "/:id",
-  auth,
-  updateDreamGoal
-);
+router.post("/", auth, createDreamGoal);
 
-router.delete(
-  "/:id",
-  auth,
-  deleteDreamGoal
-);
+router.put("/:id", auth, updateDreamGoal);
 
-router.patch(
-  "/:id/achieve",
-  auth,
-  markAchieved
-);
+router.delete("/:id", auth, deleteDreamGoal);
+
+router.patch("/:id/achieve", auth, markAchieved);
+
+router.patch("/:id/pause", auth, togglePause);
 
 module.exports = router;

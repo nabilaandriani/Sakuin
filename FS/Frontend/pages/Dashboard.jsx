@@ -41,7 +41,7 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 const fmt = (n) =>
@@ -93,9 +93,7 @@ export default function Dashboard() {
   // STATE
   // ============================================================
 
-  const [selectedYear, setSelectedYear] = useState(
-    new Date().getFullYear()
-  );
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
 
@@ -104,15 +102,15 @@ export default function Dashboard() {
     totalExpense: 0,
   });
 
+
   const [transactions, setTransactions] = useState([]);
+  const [saving, setSaving] = useState(false);
   const [savings, setSavings] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [years, setYears] = useState([new Date().getFullYear()]);
 
   const [hoveredBar, setHoveredBar] = useState(null);
-
-  const [saving, setSaving] = useState(false);
 
   // ============================================================
   // AI STATE
@@ -154,12 +152,8 @@ export default function Dashboard() {
 
     try {
       const [sumRes, txListRes] = await Promise.all([
-        apiClient.get(
-          `/api/transactions/summary?userId=${userId}`
-        ),
-        apiClient.get(
-          `/api/transactions?userId=${userId}`
-        ),
+        apiClient.get(`/api/transactions/summary?userId=${userId}`),
+        apiClient.get(`/api/transactions?userId=${userId}`),
       ]);
 
       // --------------------------------------------------------
@@ -175,7 +169,7 @@ export default function Dashboard() {
       } catch (error) {
         console.error(
           "Gagal mengambil savings:",
-          error.response?.data || error.message
+          error.response?.data || error.message,
         );
       }
 
@@ -188,17 +182,9 @@ export default function Dashboard() {
       const txData = txListRes.data?.data || [];
 
       setSummary({
-        totalIncome: Number(
-          sum.totalIncome ??
-            sum.total_income ??
-            0
-        ),
+        totalIncome: Number(sum.totalIncome ?? sum.total_income ?? 0),
 
-        totalExpense: Number(
-          sum.totalExpense ??
-            sum.total_expense ??
-            0
-        ),
+        totalExpense: Number(sum.totalExpense ?? sum.total_expense ?? 0),
       });
 
       setTransactions(txData);
@@ -217,11 +203,9 @@ export default function Dashboard() {
             .map((tx) => {
               const d = new Date(tx.date);
 
-              return Number.isNaN(d.getTime())
-                ? null
-                : d.getFullYear();
+              return Number.isNaN(d.getTime()) ? null : d.getFullYear();
             })
-            .filter(Boolean)
+            .filter(Boolean),
         ),
       ].sort((a, b) => b - a);
 
@@ -235,7 +219,7 @@ export default function Dashboard() {
     } catch (error) {
       console.error(
         "Gagal mengambil data dashboard:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
 
       if (error.response?.status === 401) {
@@ -309,14 +293,9 @@ export default function Dashboard() {
 
     const currentYear = new Date().getFullYear();
 
-    const batas =
-      yr < currentYear
-        ? 11
-        : new Date().getMonth();
+    const batas = yr < currentYear ? 11 : new Date().getMonth();
 
-    setChartData(
-      Object.values(map).slice(0, batas + 1)
-    );
+    setChartData(Object.values(map).slice(0, batas + 1));
   }
 
   // ============================================================
@@ -333,16 +312,11 @@ export default function Dashboard() {
 
       const cat = tx.category || "Lainnya";
 
-      map[cat] =
-        (map[cat] || 0) +
-        Number(tx.amount || 0);
+      map[cat] = (map[cat] || 0) + Number(tx.amount || 0);
     });
 
     const total =
-      Object.values(map).reduce(
-        (sum, value) => sum + value,
-        0
-      ) || 1;
+      Object.values(map).reduce((sum, value) => sum + value, 0) || 1;
 
     const hasil = Object.entries(map)
       .sort((a, b) => b[1] - a[1])
@@ -365,14 +339,9 @@ export default function Dashboard() {
 
         amount,
 
-        color:
-          WARNA_KAT[
-            index % WARNA_KAT.length
-          ],
+        color: WARNA_KAT[index % WARNA_KAT.length],
 
-        pct: Math.round(
-          (amount / total) * 100
-        ),
+        pct: Math.round((amount / total) * 100),
       }));
 
     setCategories(hasil);
@@ -384,10 +353,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (transactions.length > 0) {
-      buatChartData(
-        transactions,
-        selectedYear
-      );
+      buatChartData(transactions, selectedYear);
     }
   }, [selectedYear, transactions]);
 
@@ -397,24 +363,15 @@ export default function Dashboard() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setYearDropdownOpen(false);
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -423,19 +380,14 @@ export default function Dashboard() {
   // ============================================================
 
   const totalIncome = Number(
-    summary?.totalIncome ??
-      summary?.total_income ??
-      0
+    summary?.totalIncome ?? summary?.total_income ?? 0,
   );
 
   const totalExpense = Number(
-    summary?.totalExpense ??
-      summary?.total_expense ??
-      0
+    summary?.totalExpense ?? summary?.total_expense ?? 0,
   );
 
-  const netSurplus =
-    totalIncome - totalExpense;
+  const netSurplus = totalIncome - totalExpense;
 
   // ============================================================
   // AI DASHBOARD INSIGHT
@@ -452,17 +404,10 @@ export default function Dashboard() {
         return;
       }
 
-      const insightKey = [
-        userId,
-        totalIncome,
-        totalExpense,
-      ].join("-");
+      const insightKey = [userId, totalIncome, totalExpense].join("-");
 
       // Jangan request ulang data yang sama
-      if (
-        !force &&
-        lastInsightKey.current === insightKey
-      ) {
+      if (!force && lastInsightKey.current === insightKey) {
         return;
       }
 
@@ -472,41 +417,28 @@ export default function Dashboard() {
       setDashboardError("");
 
       try {
-        const response = await apiClient.post(
-          "/api/ai/dashboard-insight",
-          {
-            netSurplus,
-            totalInflow: totalIncome,
-            totalOutflow: totalExpense,
+        const response = await apiClient.post("/api/ai/dashboard-insight", {
+          netSurplus,
+          totalInflow: totalIncome,
+          totalOutflow: totalExpense,
 
-            budgetPercentage:
-              totalIncome > 0
-                ? Math.round(
-                    (totalExpense /
-                      totalIncome) *
-                      100
-                  )
-                : 0,
-          }
-        );
+          budgetPercentage:
+            totalIncome > 0
+              ? Math.round((totalExpense / totalIncome) * 100)
+              : 0,
+        });
 
-        setDashboardInsight(
-          response.data
-        );
+        setDashboardInsight(response.data);
 
-        lastInsightKey.current =
-          insightKey;
+        lastInsightKey.current = insightKey;
       } catch (error) {
-        const status =
-          error.response?.status;
+        const status = error.response?.status;
 
-        const backendMessage =
-          error.response?.data?.message;
+        const backendMessage = error.response?.data?.message;
 
         console.error(
           "AI dashboard insight error:",
-          error.response?.data ||
-            error.message
+          error.response?.data || error.message,
         );
 
         // ------------------------------------------------------
@@ -515,7 +447,7 @@ export default function Dashboard() {
 
         if (status === 429) {
           setDashboardError(
-            "Kuota AI Gemini sedang habis. Silakan coba lagi setelah kuota tersedia."
+            "Kuota AI Gemini sedang habis. Silakan coba lagi setelah kuota tersedia.",
           );
 
           setDashboardInsight(null);
@@ -529,12 +461,10 @@ export default function Dashboard() {
 
         if (status === 401) {
           setDashboardError(
-            "Sesi login telah berakhir. Silakan login kembali."
+            "Sesi login telah berakhir. Silakan login kembali.",
           );
 
-          localStorage.removeItem(
-            "token"
-          );
+          localStorage.removeItem("token");
 
           navigate("/login");
 
@@ -547,8 +477,7 @@ export default function Dashboard() {
 
         if (status === 503) {
           setDashboardError(
-            backendMessage ||
-              "Layanan AI sedang tidak tersedia."
+            backendMessage || "Layanan AI sedang tidak tersedia.",
           );
 
           return;
@@ -558,24 +487,14 @@ export default function Dashboard() {
         // ERROR LAIN
         // ------------------------------------------------------
 
-        setDashboardError(
-          backendMessage ||
-            "Insight AI gagal dimuat."
-        );
+        setDashboardError(backendMessage || "Insight AI gagal dimuat.");
       } finally {
-        aiRequestInProgress.current =
-          false;
+        aiRequestInProgress.current = false;
 
         setDashboardLoading(false);
       }
     },
-    [
-      userId,
-      totalIncome,
-      totalExpense,
-      netSurplus,
-      navigate,
-    ]
+    [userId, totalIncome, totalExpense, netSurplus, navigate],
   );
 
   // ============================================================
@@ -589,42 +508,26 @@ export default function Dashboard() {
       return;
     }
 
-    if (
-      totalIncome === 0 &&
-      totalExpense === 0
-    ) {
+    if (totalIncome === 0 && totalExpense === 0) {
       return;
     }
 
     generateDashboardInsight();
-  }, [
-    userId,
-    totalIncome,
-    totalExpense,
-    generateDashboardInsight,
-  ]);
+  }, [userId, totalIncome, totalExpense, generateDashboardInsight]);
 
   // ============================================================
   // SIMPAN TRANSAKSI
   // ============================================================
 
   const handleSimpan = async () => {
-    if (
-      !form.judul ||
-      !form.jumlah ||
-      !form.tanggal
-    ) {
-      alert(
-        "Judul, jumlah, dan tanggal wajib diisi."
-      );
+    if (!form.judul || !form.jumlah || !form.tanggal) {
+      alert("Judul, jumlah, dan tanggal wajib diisi.");
 
       return;
     }
 
     if (!userId) {
-      alert(
-        "User belum terdeteksi. Silakan login kembali."
-      );
+      alert("User belum terdeteksi. Silakan login kembali.");
 
       return;
     }
@@ -632,28 +535,21 @@ export default function Dashboard() {
     setSaving(true);
 
     try {
-      await apiClient.post(
-        "/api/transactions",
-        {
-          title: form.judul,
-          category:
-            form.kategori || "Lainnya",
-          amount: Number(form.jumlah),
-          type: form.tipe,
-          date: form.tanggal,
-          user_id: userId,
-          note: form.catatan,
-        }
-      );
+      await apiClient.post("/api/transactions", {
+        title: form.judul,
+        category: form.kategori || "Lainnya",
+        amount: Number(form.jumlah),
+        type: form.tipe,
+        date: form.tanggal,
+        user_id: userId,
+        note: form.catatan,
+      });
 
       setForm({
         judul: "",
         jumlah: "",
         tipe: "expense",
-        tanggal:
-          new Date()
-            .toISOString()
-            .slice(0, 10),
+        tanggal: new Date().toISOString().slice(0, 10),
         kategori: "",
         catatan: "",
       });
@@ -668,14 +564,10 @@ export default function Dashboard() {
     } catch (error) {
       console.error(
         "Gagal menyimpan transaksi:",
-        error.response?.data ||
-          error.message
+        error.response?.data || error.message,
       );
 
-      alert(
-        error.response?.data?.message ||
-          "Gagal menyimpan transaksi."
-      );
+      alert(error.response?.data?.message || "Gagal menyimpan transaksi.");
     } finally {
       setSaving(false);
     }
@@ -686,53 +578,35 @@ export default function Dashboard() {
   // ============================================================
 
   const handleAI = async () => {
-    if (
-      !form.jumlah ||
-      !form.tanggal
-    ) {
+    if (!form.jumlah || !form.tanggal) {
       return;
     }
 
     try {
-      const response =
-        await apiClient.post(
-          "/api/ai/predict",
-          {
-            date: form.tanggal,
-            amount_rupiah:
-              Number(form.jumlah),
+      const response = await apiClient.post("/api/ai/predict", {
+        date: form.tanggal,
+        amount_rupiah: Number(form.jumlah),
 
-            transaction_type:
-              form.tipe === "income"
-                ? "Income"
-                : "Expense",
+        transaction_type: form.tipe === "income" ? "Income" : "Expense",
 
-            top_k: 3,
-          }
-        );
+        top_k: 3,
+      });
 
       const data = response.data;
 
-      if (
-        data?.predicted_category
-      ) {
+      if (data?.predicted_category) {
         setForm((prev) => ({
           ...prev,
-          kategori:
-            data.predicted_category,
+          kategori: data.predicted_category,
         }));
       }
     } catch (error) {
       console.error(
         "AI prediction error:",
-        error.response?.data ||
-          error.message
+        error.response?.data || error.message,
       );
 
-      alert(
-        error.response?.data?.message ||
-          "AI prediksi tidak tersedia."
-      );
+      alert(error.response?.data?.message || "AI prediksi tidak tersedia.");
     }
   };
 
@@ -752,13 +626,8 @@ export default function Dashboard() {
         ];
 
   const maxVal = Math.max(
-    ...bars.map((bar) =>
-      Math.max(
-        bar.income,
-        bar.expense
-      )
-    ),
-    1
+    ...bars.map((bar) => Math.max(bar.income, bar.expense)),
+    1,
   );
 
   // ============================================================
@@ -773,7 +642,6 @@ export default function Dashboard() {
         <div className="ambient-blur-sphere sphere-one" />
 
         <div className="viewport-container">
-
           {/* ==================================================
               HEADER
           ================================================== */}
@@ -781,11 +649,7 @@ export default function Dashboard() {
           <header className="glass-action-header">
             <div className="brand-intel">
               <div className="greeting-hero">
-                Halo,{" "}
-                {user?.name?.split(
-                  " "
-                )[0] || "Pengguna"}
-                !
+                Halo, {user?.name?.split(" ")[0] || "Pengguna"}!
               </div>
 
               <h1 className="header-main-title">
@@ -802,177 +666,117 @@ export default function Dashboard() {
           ================================================== */}
 
           <div className="stat-cards-row three-col">
-
             <div className="stat-plain-card">
               <div className="stat-card-header">
                 <div className="stat-icon-pill income">
-                  <ArrowDownLeft
-                    size={16}
-                  />
+                  <ArrowDownLeft size={16} />
                 </div>
               </div>
 
-              <h3>
-                {fmt(totalIncome)}
-              </h3>
+              <h3>{fmt(totalIncome)}</h3>
 
-              <div className="stat-card-label">
-                Total Pemasukan
-              </div>
+              <div className="stat-card-label">Total Pemasukan</div>
             </div>
 
             <div className="stat-plain-card">
               <div className="stat-card-header">
                 <div className="stat-icon-pill expense">
-                  <ArrowUpRight
-                    size={16}
-                  />
+                  <ArrowUpRight size={16} />
                 </div>
               </div>
 
-              <h3>
-                {fmt(totalExpense)}
-              </h3>
+              <h3>{fmt(totalExpense)}</h3>
 
-              <div className="stat-card-label">
-                Total Pengeluaran
-              </div>
+              <div className="stat-card-label">Total Pengeluaran</div>
             </div>
 
             <div className="stat-plain-card highlight">
               <div className="stat-card-header">
                 <div className="stat-icon-pill surplus">
-                  <TrendingUp
-                    size={16}
-                  />
+                  <TrendingUp size={16} />
                 </div>
               </div>
 
-              <h3 className="surplus-value">
-                {fmt(netSurplus)}
-              </h3>
+              <h3 className="surplus-value">{fmt(netSurplus)}</h3>
 
-              <div className="stat-card-label">
-                Total Saldo Bersih
-              </div>
+              <div className="stat-card-label">Total Saldo Bersih</div>
             </div>
-
           </div>
 
           {/* ==================================================
               MAIN ROW
           ================================================== */}
 
-          <div className="dashboard-main-row">
 
+          <div className="dashboard-main-row">
             {/* ==================================================
                 CHART
             ================================================== */}
 
             <div className="chart-panel">
-
               <div className="panel-header">
-
                 <div className="panel-title">
                   <h4>Arus Kas</h4>
-                  <p>
-                    Perbandingan pemasukan &
-                    pengeluaran
-                  </p>
+                  <p>Perbandingan pemasukan & pengeluaran</p>
                 </div>
 
-                <div
-                  className="year-dropdown-wrapper"
-                  ref={dropdownRef}
-                >
+                <div className="year-dropdown-wrapper" ref={dropdownRef}>
                   <button
                     className="year-dropdown-trigger"
-                    onClick={() =>
-                      setYearDropdownOpen(
-                        (prev) => !prev
-                      )
-                    }
+                    onClick={() => setYearDropdownOpen((prev) => !prev)}
                   >
-                    <span>
-                      {selectedYear}
-                    </span>
+                    <span>{selectedYear}</span>
 
                     <ChevronDown
                       size={14}
                       style={{
-                        transform:
-                          yearDropdownOpen
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                        transition:
-                          "transform 0.2s ease",
+                        transform: yearDropdownOpen
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                        transition: "transform 0.2s ease",
                       }}
                     />
                   </button>
 
                   {yearDropdownOpen && (
                     <div className="year-dropdown-menu">
-                      {years.map(
-                        (year) => (
-                          <button
-                            key={year}
-                            className={`year-dropdown-item ${
-                              selectedYear ===
-                              year
-                                ? "selected"
-                                : ""
-                            }`}
-                            onClick={() => {
-                              setSelectedYear(
-                                year
-                              );
+                      {years.map((year) => (
+                        <button
+                          key={year}
+                          className={`year-dropdown-item ${
+                            selectedYear === year ? "selected" : ""
+                          }`}
+                          onClick={() => {
+                            setSelectedYear(year);
 
-                              setYearDropdownOpen(
-                                false
-                              );
-                            }}
-                          >
-                            <span>
-                              {year}
-                            </span>
+                            setYearDropdownOpen(false);
+                          }}
+                        >
+                          <span>{year}</span>
 
-                            {selectedYear ===
-                              year && (
-                              <Check
-                                size={13}
-                              />
-                            )}
-                          </button>
-                        )
-                      )}
+                          {selectedYear === year && <Check size={13} />}
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
-
               </div>
 
               <div className="chart-summary-row">
-
                 <div className="chart-summary-item">
                   <span className="cs-dot income" />
 
                   <div>
                     <div className="cs-label">
-                      Total Pemasukan{" "}
-                      {selectedYear}
+                      Total Pemasukan {selectedYear}
                     </div>
 
                     <div className="cs-value income">
                       {fmt(
                         bars.reduce(
-                          (sum, bar) =>
-                            sum +
-                            Number(
-                              bar.income ||
-                                0
-                            ),
-                          0
-                        )
+                          (sum, bar) => sum + Number(bar.income || 0),
+                          0,
+                        ),
                       )}
                     </div>
                   </div>
@@ -983,123 +787,75 @@ export default function Dashboard() {
 
                   <div>
                     <div className="cs-label">
-                      Total Pengeluaran{" "}
-                      {selectedYear}
+                      Total Pengeluaran {selectedYear}
                     </div>
 
                     <div className="cs-value expense">
                       {fmt(
                         bars.reduce(
-                          (sum, bar) =>
-                            sum +
-                            Number(
-                              bar.expense ||
-                                0
-                            ),
-                          0
-                        )
+                          (sum, bar) => sum + Number(bar.expense || 0),
+                          0,
+                        ),
                       )}
                     </div>
                   </div>
                 </div>
-
               </div>
 
               <div className="bar-chart-area">
-
-                {bars.map(
-                  (col, index) => (
-                    <div
-                      key={index}
-                      className="bar-chart-col"
-                      onMouseEnter={() =>
-                        setHoveredBar(
-                          index
-                        )
-                      }
-                      onMouseLeave={() =>
-                        setHoveredBar(
-                          null
-                        )
-                      }
-                    >
-
-                      {hoveredBar ===
-                        index && (
-                        <div className="bar-tooltip">
-
-                          <div className="tooltip-label">
-                            {col.label}{" "}
-                            {selectedYear}
-                          </div>
-
-                          <div className="tooltip-row">
-                            <span className="tt-dot" />
-
-                            <span>
-                              Pemasukan:{" "}
-                              <b>
-                                {fmt(
-                                  col.income
-                                )}
-                              </b>
-                            </span>
-                          </div>
-
-                          <div className="tooltip-row">
-                            <span className="tt-dot expense" />
-
-                            <span>
-                              Pengeluaran:{" "}
-                              <b>
-                                {fmt(
-                                  col.expense
-                                )}
-                              </b>
-                            </span>
-                          </div>
-
+                {bars.map((col, index) => (
+                  <div
+                    key={index}
+                    className="bar-chart-col"
+                    onMouseEnter={() => setHoveredBar(index)}
+                    onMouseLeave={() => setHoveredBar(null)}
+                  >
+                    {hoveredBar === index && (
+                      <div className="bar-tooltip">
+                        <div className="tooltip-label">
+                          {col.label} {selectedYear}
                         </div>
-                      )}
 
-                      <div className="bar-pair">
+                        <div className="tooltip-row">
+                          <span className="tt-dot" />
 
-                        <div
-                          className="bar-stack income-bar"
-                          style={{
-                            height: `${
-                              (col.income /
-                                maxVal) *
-                              100
-                            }%`,
-                          }}
-                        />
+                          <span>
+                            Pemasukan: <b>{fmt(col.income)}</b>
+                          </span>
+                        </div>
 
-                        <div
-                          className="bar-stack expense-bar"
-                          style={{
-                            height: `${
-                              (col.expense /
-                                maxVal) *
-                              100
-                            }%`,
-                          }}
-                        />
+                        <div className="tooltip-row">
+                          <span className="tt-dot expense" />
 
+                          <span>
+                            Pengeluaran: <b>{fmt(col.expense)}</b>
+                          </span>
+                        </div>
                       </div>
+                    )}
 
-                      <span className="bar-col-label">
-                        {col.label}
-                      </span>
+                    <div className="bar-pair">
+                      <div
+                        className="bar-stack income-bar"
+                        style={{
+                          height: `${(col.income / maxVal) * 100}%`,
+                        }}
+                      />
 
+                      <div
+                        className="bar-stack expense-bar"
+                        style={{
+                          height: `${(col.expense / maxVal) * 100}%`,
+                        }}
+                      />
                     </div>
-                  )
-                )}
 
+                    <span className="bar-col-label">{col.label}</span>
+                  </div>
+                ))}
               </div>
 
               <div className="chart-legend">
-
                 <div className="legend-dot">
                   <div className="dot income" />
                   Pemasukan
@@ -1109,9 +865,7 @@ export default function Dashboard() {
                   <div className="dot expense" />
                   Pengeluaran
                 </div>
-
               </div>
-
             </div>
 
             {/* ==================================================
@@ -1119,90 +873,61 @@ export default function Dashboard() {
             ================================================== */}
 
             <div className="category-panel">
-
               <div className="panel-header">
                 <div className="panel-title">
-                  <h4>
-                    Kategori Pengeluaran
-                  </h4>
+                  <h4>Kategori Pengeluaran</h4>
 
-                  <p>
-                    Pengeluaran bulan ini
-                  </p>
+                  <p>Pengeluaran bulan ini</p>
                 </div>
               </div>
 
               <div className="category-list">
-
-                {categories.length ===
-                0 ? (
+                {categories.length === 0 ? (
                   <p
                     style={{
                       padding: "20px",
                       color: "#94a3b8",
-                      textAlign:
-                        "center",
+                      textAlign: "center",
                     }}
                   >
-                    Belum ada
-                    pengeluaran
+                    Belum ada pengeluaran
                   </p>
                 ) : (
-                  categories.map(
-                    (cat, index) => (
-                      <div
-                        key={index}
-                        className="category-item"
-                      >
-
-                        <div className="category-item-header">
-
-                          <div className="category-name">
-
-                            <div
-                              className="cat-icon"
-                              style={{
-                                background:
-                                  cat.color +
-                                  "15",
-                              }}
-                            >
-                              {cat.icon}
-                            </div>
-
-                            {cat.name}
+                  categories.map((cat, index) => (
+                    <div key={index} className="category-item">
+                      <div className="category-item-header">
+                        <div className="category-name">
+                          <div
+                            className="cat-icon"
+                            style={{
+                              background: cat.color + "15",
+                            }}
+                          >
+                            {cat.icon}
                           </div>
 
-                          <span className="category-amount">
-                            {fmt(
-                              cat.amount
-                            )}
-                          </span>
-
+                          {cat.name}
                         </div>
 
-                        <div className="category-bar-bg">
-
-                          <div
-                            className="category-bar-fill"
-                            style={{
-                              width: `${cat.pct}%`,
-                              background:
-                                cat.color,
-                            }}
-                          />
-
-                        </div>
-
+                        <span className="category-amount">
+                          {fmt(cat.amount)}
+                        </span>
                       </div>
-                    )
-                  )
+
+                      <div className="category-bar-bg">
+                        <div
+                          className="category-bar-fill"
+                          style={{
+                            width: `${cat.pct}%`,
+                            background: cat.color,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))
                 )}
-
               </div>
-
             </div>
-
           </div>
 
           {/* ==================================================
@@ -1210,126 +935,70 @@ export default function Dashboard() {
           ================================================== */}
 
           <div className="dashboard-bottom-row">
-
             {/* ==================================================
                 TRANSACTIONS
             ================================================== */}
 
             <div className="recent-tx-panel">
-
               <div className="panel-header">
-
                 <div className="panel-title">
-                  <h4>
-                    Transaksi Terbaru
-                  </h4>
+                  <h4>Transaksi Terbaru</h4>
 
-                  <p>
-                    5 aktivitas terakhir
-                  </p>
+                  <p>5 aktivitas terakhir</p>
                 </div>
 
                 <button
                   className="see-all-link"
-                  onClick={() =>
-                    navigate(
-                      "/Transactions"
-                    )
-                  }
+                  onClick={() => navigate("/Transactions")}
                 >
                   Lihat Semua
                 </button>
-
               </div>
 
               <div className="tx-stream">
-
-                {transactions.length ===
-                0 ? (
+                {transactions.length === 0 ? (
                   <p
                     style={{
                       padding: "20px",
                       color: "#94a3b8",
-                      textAlign:
-                        "center",
+                      textAlign: "center",
                     }}
                   >
-                    Belum ada
-                    transaksi
+                    Belum ada transaksi
                   </p>
                 ) : (
-                  transactions
-                    .slice(0, 5)
-                    .map((tx) => (
-                      <div
-                        key={tx.id}
-                        className="tx-row"
-                      >
-
-                        <div className="tx-row-left">
-
-                          <div
-                            className={`tx-icon-frame ${tx.type}`}
-                          >
-                            {ICON_MAP[
-                              tx.category
-                            ] || (
-                              <Wallet
-                                size={16}
-                              />
-                            )}
-                          </div>
-
-                          <div className="tx-info">
-
-                            <h4>
-                              {tx.title}
-                            </h4>
-
-                            <span>
-                              {tx.category ||
-                                "Lainnya"}
-                            </span>
-
-                          </div>
-
+                  transactions.slice(0, 5).map((tx) => (
+                    <div key={tx.id} className="tx-row">
+                      <div className="tx-row-left">
+                        <div className={`tx-icon-frame ${tx.type}`}>
+                          {ICON_MAP[tx.category] || <Wallet size={16} />}
                         </div>
 
-                        <div className="tx-row-right">
+                        <div className="tx-info">
+                          <h4>{tx.title}</h4>
 
-                          <div className="tx-time">
-                            {new Date(
-                              tx.date
-                            ).toLocaleDateString(
-                              "id-ID",
-                              {
-                                day: "numeric",
-                                month: "short",
-                              }
-                            )}
-                          </div>
-
-                          <div
-                            className={`tx-amount ${tx.type}`}
-                          >
-                            {tx.type ===
-                            "expense"
-                              ? `-${fmt(
-                                  tx.amount
-                                )}`
-                              : `+${fmt(
-                                  tx.amount
-                                )}`}
-                          </div>
-
+                          <span>{tx.category || "Lainnya"}</span>
                         </div>
-
                       </div>
-                    ))
+
+                      <div className="tx-row-right">
+                        <div className="tx-time">
+                          {new Date(tx.date).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </div>
+
+                        <div className={`tx-amount ${tx.type}`}>
+                          {tx.type === "expense"
+                            ? `-${fmt(tx.amount)}`
+                            : `+${fmt(tx.amount)}`}
+                        </div>
+                      </div>
+                    </div>
+                  ))
                 )}
-
               </div>
-
             </div>
 
             {/* ==================================================
@@ -1337,140 +1006,77 @@ export default function Dashboard() {
             ================================================== */}
 
             <div className="savings-panel">
-
               <div className="panel-header">
-
                 <div className="panel-title">
-                  <h4>
-                    Dream Savings
-                  </h4>
+                  <h4>Dream Savings</h4>
 
-                  <p>
-                    Progress impianmu saat
-                    ini
-                  </p>
+                  <p>Progress impianmu saat ini</p>
                 </div>
 
                 <button
                   className="see-all-link"
-                  onClick={() =>
-                    navigate(
-                      "/savings"
-                    )
-                  }
+                  onClick={() => navigate("/savings")}
                 >
                   Lihat Semua
                 </button>
-
               </div>
 
               <div className="savings-list">
-
-                {savings.length ===
-                0 ? (
+                {savings.length === 0 ? (
                   <p
                     style={{
                       padding: "20px",
                       color: "#94a3b8",
-                      textAlign:
-                        "center",
+                      textAlign: "center",
                     }}
                   >
-                    Belum ada
-                    savings goal
+                    Belum ada savings goal
                   </p>
                 ) : (
-                  savings
-                    .slice(0, 3)
-                    .map(
-                      (goal, index) => {
-                        const target =
-                          Number(
-                            goal.target
-                          ) || 0;
+                  savings.slice(0, 3).map((goal, index) => {
+                    const target = Number(goal.target) || 0;
 
-                        const terkumpul =
-                          Number(
-                            goal.terkumpul
-                          ) || 0;
+                    const terkumpul = Number(goal.terkumpul) || 0;
 
-                        const pct =
-                          target > 0
-                            ? Math.min(
-                                Math.round(
-                                  (terkumpul /
-                                    target) *
-                                    100
-                                ),
-                                100
-                              )
-                            : 0;
+                    const pct =
+                      target > 0
+                        ? Math.min(Math.round((terkumpul / target) * 100), 100)
+                        : 0;
 
-                        return (
-                          <div
-                            key={
-                              goal.id ||
-                              index
-                            }
-                            className="saving-item"
-                          >
+                    return (
+                      <div key={goal.id || index} className="saving-item">
+                        <div className="saving-item-top">
+                          <div className="saving-name">
+                            <span className="saving-emoji">
+                              {goal.emoji || "🎯"}
+                            </span>
 
-                            <div className="saving-item-top">
+                            <div>
+                              <h5>{goal.nama}</h5>
 
-                              <div className="saving-name">
-
-                                <span className="saving-emoji">
-                                  {goal.emoji ||
-                                    "🎯"}
-                                </span>
-
-                                <div>
-                                  <h5>
-                                    {
-                                      goal.nama
-                                    }
-                                  </h5>
-
-                                  <p>
-                                    {fmt(
-                                      terkumpul
-                                    )}{" "}
-                                    dari{" "}
-                                    {fmt(
-                                      target
-                                    )}
-                                  </p>
-                                </div>
-
-                              </div>
-
-                              <span className="saving-pct">
-                                {pct}%
-                              </span>
-
+                              <p>
+                                {fmt(terkumpul)} dari {fmt(target)}
+                              </p>
                             </div>
-
-                            <div className="saving-progress-bg">
-
-                              <div
-                                className="saving-progress-fill"
-                                style={{
-                                  width: `${pct}%`,
-                                }}
-                              />
-
-                            </div>
-
                           </div>
-                        );
-                      }
-                    )
+
+                          <span className="saving-pct">{pct}%</span>
+                        </div>
+
+                        <div className="saving-progress-bg">
+                          <div
+                            className="saving-progress-fill"
+                            style={{
+                              width: `${pct}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
-
               </div>
-
             </div>
-
           </div>
 
           {/* ==================================================
@@ -1478,149 +1084,96 @@ export default function Dashboard() {
           ================================================== */}
 
           <div className="insight-banner">
-
             <div className="insight-spark" />
 
             <div className="insight-content">
-
               <div className="insight-title-row">
+                <AlertCircle size={14} />
 
-                <AlertCircle
-                  size={14}
-                />
-
-                <h5>
-                  Insight Finansial
-                  Sakuin
-                </h5>
+                <h5>Insight Finansial Sakuin</h5>
 
                 <button
                   type="button"
-                  onClick={() =>
-                    generateDashboardInsight(
-                      true
-                    )
-                  }
-                  disabled={
-                    dashboardLoading
-                  }
+                  onClick={() => generateDashboardInsight(true)}
+                  disabled={dashboardLoading}
                   title="Muat ulang insight AI"
                   style={{
                     marginLeft: "auto",
                     border: "none",
-                    background:
-                      "transparent",
-                    cursor:
-                      dashboardLoading
-                        ? "not-allowed"
-                        : "pointer",
+                    background: "transparent",
+                    cursor: dashboardLoading ? "not-allowed" : "pointer",
                     display: "flex",
-                    alignItems:
-                      "center",
-                    opacity:
-                      dashboardLoading
-                        ? 0.5
-                        : 1,
+                    alignItems: "center",
+                    opacity: dashboardLoading ? 0.5 : 1,
                   }}
                 >
                   <RefreshCw
                     size={14}
-                    className={
-                      dashboardLoading
-                        ? "spin"
-                        : ""
-                    }
+                    className={dashboardLoading ? "spin" : ""}
                   />
                 </button>
-
               </div>
 
               {/* LOADING */}
 
               {dashboardLoading && (
-                <p>
-                  AI sedang
-                  menganalisis kondisi
-                  keuanganmu...
-                </p>
+                <p>AI sedang menganalisis kondisi keuanganmu...</p>
               )}
 
               {/* ERROR */}
 
-              {!dashboardLoading &&
-                dashboardError && (
-                  <div>
+              {!dashboardLoading && dashboardError && (
+                <div>
+                  <p
+                    style={{
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {dashboardError}
+                  </p>
 
-                    <p
+                  {dashboardError.includes("kuota") && (
+                    <small
                       style={{
-                        marginBottom:
-                          "8px",
+                        opacity: 0.75,
                       }}
                     >
-                      {dashboardError}
-                    </p>
-
-                    {dashboardError.includes(
-                      "kuota"
-                    ) && (
-                      <small
-                        style={{
-                          opacity: 0.75,
-                        }}
-                      >
-                        Kuota Gemini
-                        berasal dari
-                        project API,
-                        bukan dari
-                        login user.
-                      </small>
-                    )}
-
-                  </div>
-                )}
+                      Kuota Gemini berasal dari project API, bukan dari login
+                      user.
+                    </small>
+                  )}
+                </div>
+              )}
 
               {/* SUCCESS */}
 
-              {!dashboardLoading &&
-                !dashboardError &&
-                dashboardInsight && (
-                  <>
-                    {dashboardInsight
-                      .headline && (
-                      <h5
-                        style={{
-                          marginBottom:
-                            "6px",
-                        }}
-                      >
-                        {
-                          dashboardInsight.headline
-                        }
-                      </h5>
-                    )}
+              {!dashboardLoading && !dashboardError && dashboardInsight && (
+                <>
+                  {dashboardInsight.headline && (
+                    <h5
+                      style={{
+                        marginBottom: "6px",
+                      }}
+                    >
+                      {dashboardInsight.headline}
+                    </h5>
+                  )}
 
-                    <p>
-                      {dashboardInsight.insight ||
-                        dashboardInsight.message ||
-                        "Insight berhasil dibuat."}
-                    </p>
-                  </>
-                )}
+                  <p>
+                    {dashboardInsight.insight ||
+                      dashboardInsight.message ||
+                      "Insight berhasil dibuat."}
+                  </p>
+                </>
+              )}
 
               {/* EMPTY */}
 
-              {!dashboardLoading &&
-                !dashboardError &&
-                !dashboardInsight && (
-                  <p>
-                    Belum ada insight AI.
-                  </p>
-                )}
-
+              {!dashboardLoading && !dashboardError && !dashboardInsight && (
+                <p>Belum ada insight AI.</p>
+              )}
             </div>
-
           </div>
-
         </div>
       </div>
     </div>

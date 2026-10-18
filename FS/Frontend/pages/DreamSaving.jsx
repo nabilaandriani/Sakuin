@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import "../style/dreamsaving.css";
@@ -17,6 +17,9 @@ import {
   Search,
   AlertTriangle,
   Brain,
+  Pause,
+  Play,
+  RotateCcw,
 } from "lucide-react";
 import { useStreakContext } from "../components/StreakContext";
 
@@ -107,6 +110,7 @@ export default function DreamSaving() {
   const [toastType, setToastType] = useState("success");
 
   const activeGoals = goals.filter((g) => !g.tercapai);
+  const runningGoals = goals.filter((g) => !g.tercapai && !g.dijeda);
   const achievedGoals = goals.filter((g) => g.tercapai);
 
   const totalTarget = activeGoals.reduce((s, g) => s + Number(g.target), 0);
@@ -122,8 +126,10 @@ export default function DreamSaving() {
       activeTab === "Semua"
         ? true
         : activeTab === "Berjalan"
-          ? !g.tercapai
-          : g.tercapai;
+          ? !g.tercapai && !g.dijeda
+          : activeTab === "Dijeda"
+            ? !g.tercapai && g.dijeda
+            : g.tercapai;
     return matchesSearch && matchesTab;
   });
 
@@ -134,8 +140,8 @@ export default function DreamSaving() {
     setTimeout(() => setShowToast(false), 3500);
   };
 
-  const fetchGoals = async () => {
-    setLoading(true);
+  const fetchGoals = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const response = await apiClient.get("/api/savings");
@@ -200,27 +206,72 @@ export default function DreamSaving() {
     }
   };
 
-  const handleMarkAchieved = async (goal) => {
+  const autoAchieveRef = useRef(new Set());
+
+  useEffect(() => {
+    const ready = goals.filter(
+      (g) =>
+        !g.tercapai &&
+        !g.dijeda &&
+        Number(g.target) > 0 &&
+        Number(g.terkumpul) >= Number(g.target) &&
+        !autoAchieveRef.current.has(g.id),
+    );
+    if (ready.length === 0) return;
+
+    ready.forEach((g) => autoAchieveRef.current.add(g.id));
+
+    (async () => {
+      try {
+        await Promise.all(
+          ready.map((g) => apiClient.patch(`/api/savings/${g.id}/achieve`)),
+        );
+        await fetchGoals({ silent: true });
+        triggerToast(
+          ready.length === 1
+            ? `Yeay! "${ready[0].nama}" tercapai 🎉`
+            : `Yeay! ${ready.length} impian tercapai 🎉`,
+          "success",
+        );
+      } catch (err) {
+        triggerToast("Gagal menandai impian selesai.", "danger");
+      }
+    })();
+  }, [goals]);
+
+  const handleTogglePause = async (goal) => {
+    const next = !goal.dijeda;
+    const apply = (value) =>
+      setGoals((prev) =>
+        prev.map((g) => (g.id === goal.id ? { ...g, dijeda: value } : g)),
+      );
+
+    apply(next); 
     try {
-      await apiClient.patch(`/api/savings/${goal.id}/achieve`);
-      fetchGoals();
-      triggerToast("Yeay! Impian berhasil ditandai selesai 🎉", "success");
+      await apiClient.patch(`/api/savings/${goal.id}/pause`, { dijeda: next });
+      triggerToast(
+        next
+          ? "Impian dijeda dan tidak dihitung di budgeting."
+          : "Impian dilanjutkan.",
+        "success",
+      );
     } catch (err) {
-      triggerToast("Terjadi kesalahan server.", "danger");
+      apply(!next);
+      triggerToast("Gagal mengubah status impian.", "danger");
     }
   };
 
   const generateInsight = async () => {
-    if (activeGoals.length === 0) return;
+    if (runningGoals.length === 0) return;
     setAiLoading(true);
     try {
       const response = await apiClient.post("/api/ai/savings-insight", {
-        totalGoalAktif: activeGoals.length,
+        totalGoalAktif: runningGoals.length,
         totalTarget,
         totalTerkumpul: totalSaved,
         progressKeseluruhan: overallPct,
         goalTercapai: achievedGoals.length,
-        goals: activeGoals.map((g) => ({
+        goals: runningGoals.map((g) => ({
           nama: g.nama,
           target: g.target,
           terkumpul: g.terkumpul,
@@ -252,6 +303,22 @@ export default function DreamSaving() {
     setEditId(null);
     setShowModal(true);
   };
+
+  const openRepeat = (goal) => {
+    setForm({
+      emoji: goal.emoji ?? "✈️",
+      nama: goal.nama,
+      target: goal.target,
+      terkumpul: "",
+      deadline: "",
+      catatan: goal.catatan ?? "",
+      warna: goal.warna ?? "#0E4834",
+    });
+    setModalMode("repeat");
+    setEditId(null);
+    setShowModal(true);
+  };
+
   const openEdit = (goal) => {
     setForm({
       emoji: goal.emoji ?? "✈️",
@@ -365,7 +432,7 @@ export default function DreamSaving() {
                   </div>
                   <span className="ds-stat-label">In Progress</span>
                 </div>
-                <h3>{activeGoals.length}</h3>
+                <h3>{runningGoals.length}</h3>
                 <span className="ds-stat-foot">Impian Berjalan</span>
               </div>
 
@@ -472,15 +539,17 @@ export default function DreamSaving() {
                       />
                     </div>
                     <div className="ds-tabs">
-                      {["Semua", "Berjalan", "Tercapai"].map((tab) => (
-                        <button
-                          key={tab}
-                          className={activeTab === tab ? "active" : ""}
-                          onClick={() => setActiveTab(tab)}
-                        >
-                          {tab}
-                        </button>
-                      ))}
+                      {["Semua", "Berjalan", "Dijeda", "Tercapai"].map(
+                        (tab) => (
+                          <button
+                            key={tab}
+                            className={activeTab === tab ? "active" : ""}
+                            onClick={() => setActiveTab(tab)}
+                          >
+                            {tab}
+                          </button>
+                        ),
+                      )}
                     </div>
                   </div>
 
@@ -526,6 +595,12 @@ export default function DreamSaving() {
                                   </h3>
                                   <div className="ds-ach-actions">
                                     <button
+                                      className="ds-btn-repeat sm"
+                                      onClick={() => openRepeat(goal)}
+                                    >
+                                      <RotateCcw size={12} /> Ulangi
+                                    </button>
+                                    <button
                                       className="ds-action-btn delete"
                                       onClick={() =>
                                         setShowDeleteConfirm(goal.id)
@@ -555,7 +630,7 @@ export default function DreamSaving() {
                               return (
                                 <div
                                   key={goal.id}
-                                  className="ds-card"
+                                  className={`ds-card ${goal.dijeda && !isAchieved ? "paused" : ""}`}
                                   style={{ "--cTheme": cTheme }}
                                 >
                                   <div className="ds-card-top">
@@ -569,12 +644,14 @@ export default function DreamSaving() {
                                       {goal.emoji}
                                     </div>
                                     <div className="ds-card-actions">
-                                      <button
-                                        className="ds-action-btn edit"
-                                        onClick={() => openEdit(goal)}
-                                      >
-                                        <Pencil size={13} />
-                                      </button>
+                                      {!isAchieved && (
+                                        <button
+                                          className="ds-action-btn edit"
+                                          onClick={() => openEdit(goal)}
+                                        >
+                                          <Pencil size={13} />
+                                        </button>
+                                      )}
                                       <button
                                         className="ds-action-btn delete"
                                         onClick={() =>
@@ -589,6 +666,11 @@ export default function DreamSaving() {
                                   <div className="ds-card-mid">
                                     <h4 className="ds-card-title">
                                       {goal.nama}
+                                      {goal.dijeda && !isAchieved && (
+                                        <span className="ds-paused-tag">
+                                          Dijeda
+                                        </span>
+                                      )}
                                     </h4>
                                     <div className="ds-card-money">
                                       <h2>{fmt(goal.terkumpul)}</h2>
@@ -614,30 +696,41 @@ export default function DreamSaving() {
 
                                     {!isAchieved ? (
                                       <button
-                                        className="ds-btn-done"
-                                        style={{ background: cTheme }}
-                                        onClick={() => {
-                                          if (
-                                            Number(goal.terkumpul) >=
-                                            Number(goal.target)
-                                          )
-                                            handleMarkAchieved(goal);
-                                          else
-                                            triggerToast(
-                                              "Uang belum terkumpul 100%",
-                                              "danger",
-                                            );
+                                        className="ds-btn-done ds-btn-pause"
+                                        style={{
+                                          background: goal.dijeda
+                                            ? cTheme
+                                            : "transparent",
+                                          color: goal.dijeda ? "#fff" : cTheme,
+                                          border: `1.5px solid ${cTheme}`,
                                         }}
-                                        disabled={
-                                          Number(goal.terkumpul) <
-                                          Number(goal.target)
-                                        }
+                                        onClick={() => handleTogglePause(goal)}
                                       >
-                                        Tandai Selesai
+                                        {goal.dijeda ? (
+                                          <>
+                                            <Play size={13} /> Lanjutkan
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Pause size={13} /> Jeda
+                                          </>
+                                        )}
                                       </button>
                                     ) : (
-                                      <div className="ds-badge-done">
-                                        <CheckCircle2 size={13} /> Selesai
+                                      <div className="ds-done-row">
+                                        <div className="ds-badge-done">
+                                          <CheckCircle2 size={13} /> Selesai
+                                        </div>
+                                        <button
+                                          className="ds-btn-repeat"
+                                          style={{
+                                            color: cTheme,
+                                            border: `1.5px solid ${cTheme}`,
+                                          }}
+                                          onClick={() => openRepeat(goal)}
+                                        >
+                                          <RotateCcw size={13} /> Ulangi
+                                        </button>
                                       </div>
                                     )}
                                   </div>
@@ -660,7 +753,15 @@ export default function DreamSaving() {
         <div className="ds-modal-backdrop">
           <div className="ds-modal-content">
             <div className="ds-modal-head">
-              <h2>{modalMode === "add" ? "Tambah Impian" : "Edit Impian"}</h2>
+              <h2>
+                {
+                  {
+                    add: "Tambah Impian",
+                    edit: "Edit Impian",
+                    repeat: "Ulangi Impian",
+                  }[modalMode]
+                }
+              </h2>
               <button
                 className="ds-btn-close"
                 onClick={() => setShowModal(false)}

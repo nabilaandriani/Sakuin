@@ -26,6 +26,47 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FAFBFD; color:
 .ds-btn-solid { height: 40px; padding: 0 16px; border: none; border-radius: 12px; background: #0E4834; color: #FFFFFF; font-family: inherit; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 16px #0e483426; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
 .ds-btn-solid:hover { background: #0B3A29; transform: translateY(-1px); box-shadow: 0 6px 20px #0e483440; }
 
+.ds-btn-pause {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.ds-card.paused { opacity: 0.7; }
+.ds-card.paused .ds-card-prog-fill { filter: grayscale(0.6); }
+.ds-paused-tag {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.2);
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.ds-done-row { display: flex; gap: 8px; align-items: stretch; }
+.ds-done-row .ds-badge-done { flex: 1; }
+
+.ds-btn-repeat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: transparent;
+  color: #0E4834;
+  border: 1.5px solid #0E4834;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.ds-btn-repeat:hover { background: rgba(14, 72, 52, .08); }
+.ds-btn-repeat.sm { padding: 6px 10px; font-size: 12px; border-radius: 10px; }
+
 .ds-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; position: relative; z-index: 2; }
 .ds-title { font-size: 24px; font-weight: 700; letter-spacing: -0.6px; margin-bottom: 2px; color: #1E293B; }
 .ds-subtitle { font-size: 13.5px; color: #64748B; }
