@@ -7,6 +7,7 @@ import StreakTracker from "../components/Streak";
 
 import {
   TrendingUp,
+  TrendingDown,
   ArrowDownLeft,
   ArrowUpRight,
   Wallet,
@@ -14,6 +15,11 @@ import {
   Bus,
   Clapperboard,
   Heart,
+  ShoppingBag,
+  GraduationCap,
+  Receipt,
+  PiggyBank,
+  MoreHorizontal,
   ChevronDown,
   Check,
   AlertCircle,
@@ -51,25 +57,83 @@ const fmt = (n) =>
     maximumFractionDigits: 0,
   }).format(Number(n) || 0);
 
+const ALL_CATEGORIES = [
+  "Makan dan Minuman",
+  "Transportasi",
+  "Investasi",
+  "Hiburan",
+  "Belanja",
+  "Gaji/ Pemasukan",
+  "Kesehatan",
+  "Pendidikan",
+  "Tagihan/ Kos",
+  "Dream Saving",
+  "Lainnya",
+];
+
+function normalizeCategoryName(rawCategory) {
+  if (!rawCategory) return "Lainnya";
+  const trimmed = rawCategory.trim();
+
+  const aliasMap = {
+    "Makan & Minuman": "Makan dan Minuman",
+    "Food & Drink": "Makan dan Minuman",
+    Transportation: "Transportasi",
+    Entertainment: "Hiburan",
+    "Gaji / Pemasukan": "Gaji/ Pemasukan",
+    "Tagihan / Kos": "Tagihan/ Kos",
+    "Dream Savings": "Dream Saving",
+  };
+
+  return aliasMap[trimmed] || trimmed;
+}
+
 const ICON_MAP = {
+  "Makan dan Minuman": <Utensils size={16} />,
   "Makan & Minuman": <Utensils size={16} />,
   Transportasi: <Bus size={16} />,
+  Investasi: <TrendingUp size={16} />,
   Hiburan: <Clapperboard size={16} />,
-  Kesehatan: <Heart size={16} />,
+  Belanja: <ShoppingBag size={16} />,
+  "Gaji/ Pemasukan": <Wallet size={16} />,
   "Gaji / Pemasukan": <Wallet size={16} />,
+  Kesehatan: <Heart size={16} />,
+  Pendidikan: <GraduationCap size={16} />,
+  "Tagihan/ Kos": <Receipt size={16} />,
+  "Dream Saving": <PiggyBank size={16} />,
+  Lainnya: <MoreHorizontal size={16} />,
 
   "Food & Drink": <Utensils size={16} />,
   Transportation: <Bus size={16} />,
   Entertainment: <Clapperboard size={16} />,
 };
 
+const EMOJI_KAT = {
+  "Makan dan Minuman": "🍜",
+  Transportasi: "🚌",
+  Investasi: "📈",
+  Hiburan: "🎬",
+  Belanja: "🛍️",
+  "Gaji/ Pemasukan": "💰",
+  Kesehatan: "💊",
+  Pendidikan: "🎓",
+  "Tagihan/ Kos": "🧾",
+  "Dream Saving": "🎯",
+  Lainnya: "📦",
+};
+
 const WARNA_KAT = [
   "#F59E0B",
   "#3B82F6",
+  "#10B981",
   "#8B5CF6",
   "#EC4899",
+  "#14B8A6",
   "#EF4444",
-  "#10B981",
+  "#6366F1",
+  "#F97316",
+  "#06B6D4",
+  "#64748B",
 ];
 
 function getUser() {
@@ -85,6 +149,7 @@ function getUser() {
 export default function Dashboard() {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
 
   const user = getUser();
   const userId = user?.id;
@@ -94,14 +159,15 @@ export default function Dashboard() {
   // ============================================================
 
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-
   const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
+
+  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
   const [summary, setSummary] = useState({
     totalIncome: 0,
     totalExpense: 0,
   });
-
 
   const [transactions, setTransactions] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -120,11 +186,7 @@ export default function Dashboard() {
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardError, setDashboardError] = useState("");
 
-  // Digunakan agar React StrictMode / render ulang tidak
-  // mengirim request AI berulang.
   const aiRequestInProgress = useRef(false);
-
-  // Menyimpan kombinasi data yang sudah pernah diminta
   const lastInsightKey = useRef("");
 
   // ============================================================
@@ -178,12 +240,10 @@ export default function Dashboard() {
       // --------------------------------------------------------
 
       const sum = sumRes.data || {};
-
       const txData = txListRes.data?.data || [];
 
       setSummary({
         totalIncome: Number(sum.totalIncome ?? sum.total_income ?? 0),
-
         totalExpense: Number(sum.totalExpense ?? sum.total_expense ?? 0),
       });
 
@@ -279,7 +339,6 @@ export default function Dashboard() {
       }
 
       const month = d.getMonth();
-
       const amount = Number(tx.amount || 0);
 
       if (tx.type === "income") {
@@ -292,7 +351,6 @@ export default function Dashboard() {
     });
 
     const currentYear = new Date().getFullYear();
-
     const batas = yr < currentYear ? 11 : new Date().getMonth();
 
     setChartData(Object.values(map).slice(0, batas + 1));
@@ -305,12 +363,16 @@ export default function Dashboard() {
   function buatKategori(txList) {
     const map = {};
 
+    ALL_CATEGORIES.forEach((catName) => {
+      map[catName] = 0;
+    });
+
     txList.forEach((tx) => {
       if (tx.type !== "expense") {
         return;
       }
 
-      const cat = tx.category || "Lainnya";
+      const cat = normalizeCategoryName(tx.category);
 
       map[cat] = (map[cat] || 0) + Number(tx.amount || 0);
     });
@@ -320,28 +382,12 @@ export default function Dashboard() {
 
     const hasil = Object.entries(map)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 4)
       .map(([name, amount], index) => ({
         name,
-
-        icon:
-          name === "Makan & Minuman"
-            ? "🍜"
-            : name === "Transportasi"
-              ? "🚌"
-              : name === "Hiburan"
-                ? "🎬"
-                : name === "Belanja"
-                  ? "🛍️"
-                  : name === "Kesehatan"
-                    ? "💊"
-                    : "📦",
-
+        icon: EMOJI_KAT[name] || "📦",
         amount,
-
         color: WARNA_KAT[index % WARNA_KAT.length],
-
-        pct: Math.round((amount / total) * 100),
+        pct: total > 0 && amount > 0 ? Math.round((amount / total) * 100) : 0,
       }));
 
     setCategories(hasil);
@@ -366,6 +412,13 @@ export default function Dashboard() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setYearDropdownOpen(false);
       }
+
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target)
+      ) {
+        setCategoryDropdownOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -388,6 +441,20 @@ export default function Dashboard() {
   );
 
   const netSurplus = totalIncome - totalExpense;
+  const isNegativeSurplus = netSurplus < 0;
+
+  // ============================================================
+  // FILTER KATEGORI PENGELUARAN
+  // ============================================================
+
+  const categoryOptions = ["Semua", ...ALL_CATEGORIES];
+
+  const activeExpenseCategories = categories.filter((cat) => cat.amount > 0);
+
+  const filteredCategories =
+    selectedCategory === "Semua"
+      ? activeExpenseCategories
+      : categories.filter((cat) => cat.name === selectedCategory);
 
   // ============================================================
   // AI DASHBOARD INSIGHT
@@ -399,14 +466,12 @@ export default function Dashboard() {
         return;
       }
 
-      // Jangan request jika AI sedang request
       if (aiRequestInProgress.current) {
         return;
       }
 
       const insightKey = [userId, totalIncome, totalExpense].join("-");
 
-      // Jangan request ulang data yang sama
       if (!force && lastInsightKey.current === insightKey) {
         return;
       }
@@ -433,17 +498,12 @@ export default function Dashboard() {
         lastInsightKey.current = insightKey;
       } catch (error) {
         const status = error.response?.status;
-
         const backendMessage = error.response?.data?.message;
 
         console.error(
           "AI dashboard insight error:",
           error.response?.data || error.message,
         );
-
-        // ------------------------------------------------------
-        // 429 GEMINI QUOTA
-        // ------------------------------------------------------
 
         if (status === 429) {
           setDashboardError(
@@ -454,10 +514,6 @@ export default function Dashboard() {
 
           return;
         }
-
-        // ------------------------------------------------------
-        // 401
-        // ------------------------------------------------------
 
         if (status === 401) {
           setDashboardError(
@@ -471,10 +527,6 @@ export default function Dashboard() {
           return;
         }
 
-        // ------------------------------------------------------
-        // 503
-        // ------------------------------------------------------
-
         if (status === 503) {
           setDashboardError(
             backendMessage || "Layanan AI sedang tidak tersedia.",
@@ -482,10 +534,6 @@ export default function Dashboard() {
 
           return;
         }
-
-        // ------------------------------------------------------
-        // ERROR LAIN
-        // ------------------------------------------------------
 
         setDashboardError(backendMessage || "Insight AI gagal dimuat.");
       } finally {
@@ -499,8 +547,6 @@ export default function Dashboard() {
 
   // ============================================================
   // PANGGIL AI SETELAH DATA SELESAI
-  //
-  // Tidak langsung dipanggil berkali-kali setiap render.
   // ============================================================
 
   useEffect(() => {
@@ -554,8 +600,6 @@ export default function Dashboard() {
         catatan: "",
       });
 
-      // Reset insight supaya data terbaru
-      // dapat dianalisis lagi
       setDashboardInsight(null);
       setDashboardError("");
       lastInsightKey.current = "";
@@ -586,9 +630,7 @@ export default function Dashboard() {
       const response = await apiClient.post("/api/ai/predict", {
         date: form.tanggal,
         amount_rupiah: Number(form.jumlah),
-
         transaction_type: form.tipe === "income" ? "Income" : "Expense",
-
         top_k: 3,
       });
 
@@ -690,23 +732,74 @@ export default function Dashboard() {
               <div className="stat-card-label">Total Pengeluaran</div>
             </div>
 
-            <div className="stat-plain-card highlight">
+            {/* KOTAK TOTAL SALDO BERSIH (BERUBAH MERAH JIKA MINUS) */}
+            <div
+              className={`stat-plain-card highlight ${
+                isNegativeSurplus ? "negative-card" : ""
+              }`}
+              style={
+                isNegativeSurplus
+                  ? {
+                      background:
+                        "linear-gradient(135deg, #ffffff 0%, #fee2e2 100%)",
+                      borderColor: "#fca5a5",
+                    }
+                  : undefined
+              }
+            >
               <div className="stat-card-header">
-                <div className="stat-icon-pill surplus">
-                  <TrendingUp size={16} />
+                <div
+                  className={`stat-icon-pill ${
+                    isNegativeSurplus ? "expense" : "surplus"
+                  }`}
+                  style={
+                    isNegativeSurplus
+                      ? {
+                          backgroundColor: "#fecaca",
+                          color: "#dc2626",
+                        }
+                      : undefined
+                  }
+                >
+                  {isNegativeSurplus ? (
+                    <TrendingDown size={16} />
+                  ) : (
+                    <TrendingUp size={16} />
+                  )}
                 </div>
               </div>
 
-              <h3 className="surplus-value">{fmt(netSurplus)}</h3>
+              <h3
+                className="surplus-value"
+                style={
+                  isNegativeSurplus
+                    ? {
+                        color: "#dc2626",
+                      }
+                    : undefined
+                }
+              >
+                {fmt(netSurplus)}
+              </h3>
 
-              <div className="stat-card-label">Total Saldo Bersih</div>
+              <div
+                className="stat-card-label"
+                style={
+                  isNegativeSurplus
+                    ? {
+                        color: "#b91c1c",
+                      }
+                    : undefined
+                }
+              >
+                Total Saldo Bersih
+              </div>
             </div>
           </div>
 
           {/* ==================================================
               MAIN ROW
           ================================================== */}
-
 
           <div className="dashboard-main-row">
             {/* ==================================================
@@ -879,10 +972,64 @@ export default function Dashboard() {
 
                   <p>Pengeluaran bulan ini</p>
                 </div>
+
+                {/* FILTER DROPDOWN SEMUA KATEGORI */}
+                <div
+                  className="year-dropdown-wrapper"
+                  ref={categoryDropdownRef}
+                >
+                  <button
+                    type="button"
+                    className="year-dropdown-trigger"
+                    onClick={() => setCategoryDropdownOpen((prev) => !prev)}
+                  >
+                    <span>{selectedCategory}</span>
+
+                    <ChevronDown
+                      size={14}
+                      style={{
+                        transform: categoryDropdownOpen
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                        transition: "transform 0.2s ease",
+                      }}
+                    />
+                  </button>
+
+                  {categoryDropdownOpen && (
+                    <div
+                      className="year-dropdown-menu"
+                      style={{
+                        minWidth: "185px",
+                        maxHeight: "260px",
+                        overflowY: "auto",
+                        right: 0,
+                      }}
+                    >
+                      {categoryOptions.map((catName) => (
+                        <button
+                          type="button"
+                          key={catName}
+                          className={`year-dropdown-item ${
+                            selectedCategory === catName ? "selected" : ""
+                          }`}
+                          onClick={() => {
+                            setSelectedCategory(catName);
+                            setCategoryDropdownOpen(false);
+                          }}
+                        >
+                          <span>{catName}</span>
+
+                          {selectedCategory === catName && <Check size={13} />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="category-list">
-                {categories.length === 0 ? (
+                {filteredCategories.length === 0 ? (
                   <p
                     style={{
                       padding: "20px",
@@ -893,7 +1040,7 @@ export default function Dashboard() {
                     Belum ada pengeluaran
                   </p>
                 ) : (
-                  categories.map((cat, index) => (
+                  filteredCategories.map((cat, index) => (
                     <div key={index} className="category-item">
                       <div className="category-item-header">
                         <div className="category-name">
@@ -967,36 +1114,41 @@ export default function Dashboard() {
                     Belum ada transaksi
                   </p>
                 ) : (
-                  transactions.slice(0, 5).map((tx) => (
-                    <div key={tx.id} className="tx-row">
-                      <div className="tx-row-left">
-                        <div className={`tx-icon-frame ${tx.type}`}>
-                          {ICON_MAP[tx.category] || <Wallet size={16} />}
+                  transactions.slice(0, 5).map((tx) => {
+                    const normCat = normalizeCategoryName(tx.category);
+
+                    return (
+                      <div key={tx.id} className="tx-row">
+                        <div className="tx-row-left">
+                          <div className={`tx-icon-frame ${tx.type}`}>
+                            {ICON_MAP[normCat] ||
+                              ICON_MAP[tx.category] || <Wallet size={16} />}
+                          </div>
+
+                          <div className="tx-info">
+                            <h4>{tx.title}</h4>
+
+                            <span>{normCat}</span>
+                          </div>
                         </div>
 
-                        <div className="tx-info">
-                          <h4>{tx.title}</h4>
+                        <div className="tx-row-right">
+                          <div className="tx-time">
+                            {new Date(tx.date).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                            })}
+                          </div>
 
-                          <span>{tx.category || "Lainnya"}</span>
+                          <div className={`tx-amount ${tx.type}`}>
+                            {tx.type === "expense"
+                              ? `-${fmt(tx.amount)}`
+                              : `+${fmt(tx.amount)}`}
+                          </div>
                         </div>
                       </div>
-
-                      <div className="tx-row-right">
-                        <div className="tx-time">
-                          {new Date(tx.date).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "short",
-                          })}
-                        </div>
-
-                        <div className={`tx-amount ${tx.type}`}>
-                          {tx.type === "expense"
-                            ? `-${fmt(tx.amount)}`
-                            : `+${fmt(tx.amount)}`}
-                        </div>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -1035,7 +1187,6 @@ export default function Dashboard() {
                 ) : (
                   savings.slice(0, 3).map((goal, index) => {
                     const target = Number(goal.target) || 0;
-
                     const terkumpul = Number(goal.terkumpul) || 0;
 
                     const pct =
